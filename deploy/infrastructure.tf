@@ -22,18 +22,18 @@ resource "aws_instance" "S3DashboardPHP" {
 }
 
 output "instance_id" {
-  value = aws_instance.testinstance.id
+  value = aws_instance.S3DashboardPHP.id
 }
 
 output "instance_public_ip" {
-  value = aws_instance.testinstance.public_ip
+  value = aws_instance.S3DashboardPHP.public_ip
 }
 
 output "instance_public_dns" {
-  value = aws_instance.testinstance.public_dns
+  value = aws_instance.S3DashboardPHP.public_dns
 }
 
 output "instance_name" {
-  value = aws_instance.testinstance.tags.Name  
+  value = aws_instance.S3DashboardPHP.tags.Name  
 }
 
