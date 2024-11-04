@@ -19,6 +19,7 @@ resource "aws_instance" "S3DashboardPHP" {
   tags = {
     Name = "S3DashboardPHP"
   }
+  iam_instance_profile = "php-demo-role"
 }
 
 output "instance_id" {
