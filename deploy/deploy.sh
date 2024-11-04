@@ -41,6 +41,8 @@ cd /var/www/html/app
 sudo composer require aws/aws-sdk-php
 sudo composer require twig/twig
 
+sudo sed -i 's|DirectoryIndex.*|DirectoryIndex app/s3.html|' /etc/httpd/conf/httpd.conf
+
 sudo systemctl restart httpd
 
 php -v 
