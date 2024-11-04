@@ -20,7 +20,7 @@ scp -o StrictHostKeyChecking=no ./deploy/build.sh "$REMOTE_USER@$INSTANCE_PUBLIC
 echo "Connecting to remote server via SSH..."
 
 
-ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$INSTANCE_PUBLIC_DNS" << 'EOF"
+ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$INSTANCE_PUBLIC_DNS" << 'EOF'
     chmod +x /tmp/build.sh
     /tmp/build.sh
 EOF
