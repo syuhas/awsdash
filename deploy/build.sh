@@ -23,7 +23,7 @@ sudo composer require twig/twig
 
 
 sudo sed -i 's|DocumentRoot "/var/www/html"|DocumentRoot "/var/www/html/app"|' /etc/httpd/conf/httpd.conf
-sudo sed -i 's|DirectoryIndex index.html.*|DirectoryIndex app/s3.html|' /etc/httpd/conf/httpd.conf
+sudo sed -i 's|DirectoryIndex index.html.*|DirectoryIndex app/s3.php|' /etc/httpd/conf/httpd.conf
 
 sudo systemctl restart httpd
 
