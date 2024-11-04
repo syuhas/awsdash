@@ -20,6 +20,8 @@ echo "Connecting to remote server via SSH..."
 
 # Copy the build artifact to the remote server
 ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$INSTANCE_PUBLIC_DNS" << EOF
+    sudo dnf update -y
+    sudo dnf upgrade -y
     sudo dnf install composer -y
     sudo dnf install httpd -y
     sudo dnf install php -y
