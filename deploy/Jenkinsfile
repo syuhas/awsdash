@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('DeployEc2') {
             when {
-                expression { params.Options == 'Deploy' }
+                expression { params.Options == 'Deploy' || params.Options == 'Update' }
             }
             steps {
                 withCredentials([[
@@ -34,7 +34,7 @@ pipeline {
 
         stage('ServerSetup') {
             when {
-                expression { params.Options == 'Deploy' }
+                expression { params.Options == 'Deploy' || params.Options == 'Update' }
             }
             steps {
                 sshagent(['ec2']) {

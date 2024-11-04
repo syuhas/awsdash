@@ -21,14 +21,14 @@ echo "Connecting to remote server via SSH..."
 
 ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$INSTANCE_PUBLIC_DNS" << 'EOF'
 
-sudo dnf update -y
-sudo dnf upgrade -y
+sudo yum update -y
+sudo yum upgrade -y
 
-sudo dnf install composer -y
+sudo yum install composer -y
 
-sudo dnf install httpd -y
+sudo yum install httpd -y
 
-sudo dnf install php -y
+sudo yum install php -y
 
 sudo mkdir -p /var/www/html/app
 sudo cp -r /tmp/src/* /var/www/html/app
