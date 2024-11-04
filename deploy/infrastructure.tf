@@ -5,20 +5,20 @@ provider "aws" {
 terraform {
   backend "s3" {
     bucket = "terraform-lock-bucket"
-    key    = "dashboard/terraform.tfstate"
+    key    = "s3dashboardphp/terraform.tfstate"
     region = "us-east-1"
     dynamodb_table = "terraform-lock-table"
   }
 }
 
-resource "aws_instance" "testinstance" {
+resource "aws_instance" "S3DashboardPHP" {
   ami = "ami-06b21ccaeff8cd686"
   instance_type = "t2.micro"
   vpc_security_group_ids = ["sg-00d9ca388301c93a9"]
   user_data = file("userdata.sh")
   key_name = "ec2"
   tags = {
-    Name = "testinstance"
+    Name = "S3DashboardPHP"
   }
 }
 
