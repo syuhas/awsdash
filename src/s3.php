@@ -5,7 +5,8 @@ require 'vendor/autoload.php';
 use Aws\S3\S3Client;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
-use Aws\Credentials\CredentialProvider;
+//  local docker only
+// use Aws\Credentials\CredentialProvider;
 
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
@@ -65,7 +66,7 @@ foreach ($bucketData['Buckets'] as $bucket) {
 }
 
 // twig setup
-$loader = new FilesystemLoader('src/templates');
+$loader = new FilesystemLoader('templates');
 $twig = new Environment($loader);
 
 // render twig
