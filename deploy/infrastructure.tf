@@ -18,7 +18,7 @@ resource "aws_instance" "s3-dashboard-php" {
   vpc_security_group_ids = ["sg-00d9ca388301c93a9"]
   key_name = "ec2"
   tags = {
-    Name = "S3DashboardPHP"
+    Name = "s3-dashboard-php"
   }
   iam_instance_profile = "php_demo_role"
   subnet_id = "subnet-0823df6c43b1a0ea4"
@@ -96,5 +96,5 @@ resource "aws_route53_record" "php-dns" {
 }
 
 output "instance_public_dns" {
-  value = aws_instance.S3DashboardPHP.public_dns
+  value = aws_instance.s3-dashboard-php.public_dns
 }
