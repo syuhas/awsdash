@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('DeployEc2') {
+        stage('DeployInfrastructure') {
             when {
                 expression { params.Options == 'Deploy' || params.Options == 'Update' }
             }
@@ -43,7 +43,7 @@ pipeline {
             }
         }
 
-        stage('DestroyEc2') {
+        stage('DestroyInfrastructure') {
             when {
                 expression { params.Options == 'Destroy' }
             }
