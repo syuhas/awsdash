@@ -95,6 +95,18 @@ resource "aws_route53_record" "php-dns" {
   }
 }
 
+output "instance_id" {
+  value = aws_instance.testinstance.id
+}
+
+output "instance_public_ip" {
+  value = aws_instance.testinstance.public_ip
+}
+
 output "instance_public_dns" {
   value = aws_instance.s3-dashboard-php.public_dns
+}
+
+output "instance_name" {
+  value = aws_instance.testinstance.tags.Name  
 }
