@@ -77,7 +77,7 @@ resource "aws_lb_listener" "php-https-lb-listener" {
 }
 
 # register instance with the target group
-resource "aws_lb_target-group_attachement" "php-tg-attachment" {
+resource "aws_lb_target-group_attachment" "php-tg-attachment" {
   target_group_arn = aws_lb_target_group.php-tg.arn
   target_id = aws_instance.s3-dashboard-php.id
   port = 80
