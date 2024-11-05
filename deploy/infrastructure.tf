@@ -57,7 +57,7 @@ resource "aws_lb_listener" "php-http-lb-listener" {
 
   default_action {
     type = "forward"
-    target_group_arn = aws_lb_target_groups.php-tg.arn
+    target_group_arn = aws_lb_target_group.php-tg.arn
   }
 }
 
@@ -69,7 +69,7 @@ resource "aws_lb_listener" "php-https-lb-listener" {
 
   default_action {
     type = "forward"
-    target_group_arn = aws_lb_target_groups.php-tg.arn
+    target_group_arn = aws_lb_target_group.php-tg.arn
   }
 
   certificate_arn = "arn:aws:acm:us-east-1:551796573889:certificate/a96258a9-2996-4186-b5a8-815bf9c5b3e1"
