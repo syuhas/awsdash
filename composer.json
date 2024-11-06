@@ -1,0 +1,6 @@
+{
+    "require": {
+        "aws/aws-sdk-php": "^3.325",
+        "twig/twig": "^3.14"
+    }
+}
