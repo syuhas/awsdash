@@ -37,7 +37,7 @@ pipeline {
             steps {
                 script {
                     def assumeRoleCmd = """
-                        aws sts assume-role --role-arn arn:aws:iam::${AWS_ACCOUNT_ID}:role/jenkinsAdminXacnt
+                        aws sts assume-role --role-arn arn:aws:iam::${AWS_ACCOUNT_ID}:role/jenkinsAdminXacnt --role-session-name jenkinsXacntSession
                     """
                     def assumeRoleOutput = sh(script: assumeRoleCmd, returnStdout: true).trim()
                     def creds = readJSON(text: assumeRoleOutput).Credentials
