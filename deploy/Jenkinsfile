@@ -3,9 +3,6 @@ pipeline {
     environment {
         AWS_ACCOUNT_ID = "${ params.Account }"
         ROLE_NAME = 'jenkinsAdminXacnt'
-        AWS_SECURITY_GROUP = ''
-        AWS_SUBNET_IDS = ''
-        AWS_SUBDOMAIN = "${ params.Subdomain }"
     }
 
     stages {
@@ -41,6 +38,7 @@ pipeline {
                         env.TF_VAR_aws_ssl_certificate_arn = 'arn:aws:acm:us-east-1:551796573889:certificate/a96258a9-2996-4186-b5a8-815bf9c5b3e1'
                         env.TF_VAR_aws_route53_zone_id = 'Z02299283BLALIJG69JHMK'
                         env.TF_VAR_aws_domain = 'digitalsteve.net'
+                        env.TF_VAR_aws_subdomain = "${ params.Subdomain }"
                     } else if (AWS_ACCOUNT_ID == '061039789243') {
                         env.TF_VAR_aws_security_group = 'sg-037b895bfb55fcedd'
                         env.TF_VAR_aws_subnet_ids = 'subnet-0779315ccd9641510,subnet-0e8054e0ff2fef1d8'
@@ -49,6 +47,7 @@ pipeline {
                         env.TF_VAR_aws_ssl_certificate_arn = 'arn:aws:acm:us-east-1:061039789243:certificate/0f0c9829-728a-48d3-aa01-afd1637ad61a'
                         env.TF_VAR_aws_route53_zone_id = 'Z067106723AVOCDQ6FWVC'
                         env.TF_VAR_aws_domain = 'dev.digitalsteve.dev'
+                        env.TF_VAR_aws_subdomain = "${ params.Subdomain }"
                     }
                 }
                 sh 'echo "Environment Variables Set"'
@@ -75,8 +74,8 @@ pipeline {
                 dir('deploy') {
                     sh """
                         terraform init \
-                            -backend-config="bucket=${AWS_TF_BUCKET}" \
-                            -backend-config="key=${AWS_SUBDOMAIN}.${AWS_DOMAIN}/terraform.tfstate" \
+                            -backend-config="bucket=${env.TF_VAR_aws_tf_bucket}" \
+                            -backend-config="key=${env.TF_VAR_aws_subdomain}.${env.TF_VAR_aws_domain}/terraform.tfstate" \
                             -backend-config="region=us-east-1" \
                             -backend-config="dynamodb_table=terraform-lock-table"
                     """
