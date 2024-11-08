@@ -13,14 +13,14 @@ variable "aws_subdomain" {type = string}
 
 
 
-terraform {
-  backend "s3" {
-    bucket = var.aws_tf_bucket
-    key    = "${var.aws_domain}/terraform.tfstate"
-    region = "us-east-1"
-    dynamodb_table = "terraform-lock-table"
-  }
-}
+# terraform {
+#   backend "s3" {
+#     bucket = var.aws_tf_bucket
+#     key    = "${var.aws_domain}/terraform.tfstate"
+#     region = "us-east-1"
+#     dynamodb_table = "terraform-lock-table"
+#   }
+# }
 
 # create ec2 instance
 resource "aws_instance" "s3-dashboard-php" {

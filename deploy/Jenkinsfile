@@ -11,6 +11,7 @@ pipeline {
     stages {
         stage('SetEnvVariables') {
             steps {
+                sh 'echo "Setting Environment Variables"'
                 script {
                     if (AWS_ACCOUNT_ID == '551796573889') {
                         env.AWS_SECURITY_GROUP = 'sg-00d9ca388301c93a9'
@@ -31,6 +32,7 @@ pipeline {
                         env.AWS_DOMAIN = 'dev.digitalsteve.dev'
                     }
                 }
+                sh 'echo "Environment Variables Set"'
             }
         }
         stage('AssumeRole') {
@@ -48,6 +50,21 @@ pipeline {
                 }
             }
         }
+
+        stage('TerraformBackend') {
+            steps {
+                dir('deploy') {
+                    sh """
+                        terraform init \
+                            -backend-config="bucket=${AWS_TF_BUCKET}" \
+                            -backend-config="key=${AWS_SUBDOMAIN}.${AWS_DOMAIN}/terraform.tfstate" \
+                            -backend-config="region=us-east-1" \
+                            -backend-config="dynamodb_table=terraform-lock-table"
+                    """
+                }
+            }
+        }
+
         stage('DeployInfrastructure') {
             when {
                 expression { params.Options == 'Deploy' || params.Options == 'Update' }
