@@ -72,8 +72,8 @@ pipeline {
             steps {
                     dir('deploy') {
                         // sh 'terraform init'
-                        sh 'terraform plan -out=plan.tfplan -var-file="infrastructure.tfvars"'
-                        sh 'terraform apply -auto-approve plan.tfplan -var-file="infrastructure.tfvars"'
+                        sh 'terraform plan -out=plan.tfplan'
+                        sh 'terraform apply -auto-approve plan.tfplan'
                         script {
                             env.INSTANCE_ID = sh(script: 'terraform output -raw instance_id', returnStdout: true).trim()
                             env.PUBLIC_IP = sh(script: 'terraform output -raw instance_public_ip', returnStdout: true).trim()
