@@ -33,10 +33,10 @@ pipeline {
                     if (AWS_ACCOUNT_ID == '551796573889') {
                         env.TF_VAR_aws_security_group = 'sg-00d9ca388301c93a9'
                         env.TF_VAR_aws_subnet_ids = '["subnet-0823df6c43b1a0ea4", "subnet-057dcb202796ed034"]'
-                        env.TF_VAR_aws_vpc_id = 'vpc-0fb8abe9d3c477b0d'
+                        env.TF_VAR_aws_vpc_id = 'vpc-0fb8abe9d3c477bd0'
                         env.TF_VAR_aws_tf_bucket = 'terraform-lock-bucket'
                         env.TF_VAR_aws_ssl_certificate_arn = 'arn:aws:acm:us-east-1:551796573889:certificate/a96258a9-2996-4186-b5a8-815bf9c5b3e1'
-                        env.TF_VAR_aws_route53_zone_id = 'Z02299283BLALIJG69JHMK'
+                        env.TF_VAR_aws_route53_zone_id = 'Z02299283BLAIJGG9JHMK'
                         env.TF_VAR_aws_domain = 'digitalsteve.net'
                         env.TF_VAR_aws_subdomain = "${ params.Subdomain }"
                     } else if (AWS_ACCOUNT_ID == '061039789243') {
@@ -45,7 +45,7 @@ pipeline {
                         env.TF_VAR_aws_vpc_id = 'vpc-04ad271ca687b3562'
                         env.TF_VAR_aws_tf_bucket = 'terraform-lock-bucket-dev'
                         env.TF_VAR_aws_ssl_certificate_arn = 'arn:aws:acm:us-east-1:061039789243:certificate/0f0c9829-728a-48d3-aa01-afd1637ad61a'
-                        env.TF_VAR_aws_route53_zone_id = 'Z067106723AVOCDQ6FWVC'
+                        env.TF_VAR_aws_route53_zone_id = 'Z067106723AVOCD6QFWVC'
                         env.TF_VAR_aws_domain = 'dev.digitalsteve.dev'
                         env.TF_VAR_aws_subdomain = "${ params.Subdomain }"
                     }
