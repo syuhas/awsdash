@@ -23,7 +23,7 @@ pipeline {
 
                     } else if (AWS_ACCOUNT_ID == '061039789243') {
                         env.AWS_SECURITY_GROUP = 'sg-037b895bfb55fcedd'
-                        env.AWS_SUBNET_IDS = 'subnet-0779315ccd9641510','subnet-0e8054e0ff2fef1d8'
+                        env.AWS_SUBNET_IDS = 'subnet-0779315ccd9641510,subnet-0e8054e0ff2fef1d8'
                         env.AWS_VPC_ID = 'vpc-04ad271ca687b3562'
                         env.AWS_TF_BUCKET = 'terraform-lock-bucket-dev'
                         env.AWS_SSL_CERTIFICATE_ARN = 'arn:aws:acm:us-east-1:061039789243:certificate/0f0c9829-728a-48d3-aa01-afd1637ad61a'
