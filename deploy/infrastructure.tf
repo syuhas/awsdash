@@ -13,14 +13,9 @@ variable "aws_subdomain" {type = string}
 
 
 
-# terraform {
-#   backend "s3" {
-#     bucket = var.aws_tf_bucket
-#     key    = "${var.aws_domain}/terraform.tfstate"
-#     region = "us-east-1"
-#     dynamodb_table = "terraform-lock-table"
-#   }
-# }
+terraform {
+  backend "s3" {}
+}
 
 # create ec2 instance
 resource "aws_instance" "s3-dashboard-php" {
@@ -96,7 +91,7 @@ resource "aws_lb_target_group_attachment" "php-tg-attachment" {
 
 resource "aws_route53_record" "php-dns" {
   zone_id = var.aws_route53_zone_id
-  name = "${var.aws_subdomain}.${aws_domain}"
+  name = "${var.aws_subdomain}.${var.aws_domain}"
   type = "A"
 
   alias {
