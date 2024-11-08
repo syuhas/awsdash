@@ -29,6 +29,7 @@ pipeline {
                         env.AWS_SSL_CERTIFICATE_ARN = 'arn:aws:acm:us-east-1:061039789243:certificate/0f0c9829-728a-48d3-aa01-afd1637ad61a'
                         env.AWS_ROUTE53_ZONE_ID = 'Z067106723AVOCD6QFWVC'
                         env.AWS_DOMAIN = 'dev.digitalsteve.dev'
+                    }
                 }
             }
         }
