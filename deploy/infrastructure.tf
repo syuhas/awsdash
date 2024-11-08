@@ -26,7 +26,7 @@ variable "aws_subdomain" {type = string}
 resource "aws_instance" "s3-dashboard-php" {
   ami = "ami-06b21ccaeff8cd686"
   instance_type = "t2.micro"
-  vpc_security_group_ids = [var.aws_domain]
+  vpc_security_group_ids = [var.aws_security_group]
   key_name = "ec2"
   tags = {
     Name = "${var.aws_subdomain}.${aws_domain}"
