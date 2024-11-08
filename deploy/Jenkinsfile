@@ -14,7 +14,7 @@ pipeline {
                 script {
                     if (AWS_ACCOUNT_ID == '551796573889') {
                         env.AWS_SECURITY_GROUP = 'sg-00d9ca388301c93a9'
-                        env.AWS_SUBNET_IDS = 'subnet-0823df6c43b1a0ea4','subnet-057dcb202796ed034'
+                        env.AWS_SUBNET_IDS = 'subnet-0823df6c43b1a0ea4,subnet-057dcb202796ed034'
                         env.AWS_VPC_ID = 'vpc-0fb8abe9d3c477bd0'
                         env.AWS_TF_BUCKET = 'terraform-lock-bucket'
                         env.AWS_SSL_CERTIFICATE_ARN = 'arn:aws:acm:us-east-1:551796573889:certificate/a96258a9-2996-4186-b5a8-815bf9c5b3e1'
