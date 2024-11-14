@@ -2,26 +2,32 @@ provider "aws" {
   region = "us-east-1"
 }
 
+variable "aws_security_group" {type = string}
+variable "aws_subnet_ids" {type = list(string)}
+variable "aws_vpc_id" {type = string}
+variable "aws_tf_bucket" {type = string}
+variable "aws_ssl_certificate_arn" {type = string}
+variable "aws_route53_zone_id" {type = string}
+variable "aws_domain" {type = string}
+variable "aws_subdomain" {type = string}
+
+
+
 terraform {
-  backend "s3" {
-    bucket = "terraform-lock-bucket"
-    key    = "s3dashboardphp/terraform.tfstate"
-    region = "us-east-1"
-    dynamodb_table = "terraform-lock-table"
-  }
+  backend "s3" {}
 }
 
 # create ec2 instance
 resource "aws_instance" "s3-dashboard-php" {
   ami = "ami-06b21ccaeff8cd686"
   instance_type = "t2.micro"
-  vpc_security_group_ids = ["sg-00d9ca388301c93a9"]
+  vpc_security_group_ids = [var.aws_security_group]
   key_name = "ec2"
   tags = {
-    Name = "s3-dashboard-php"
+    Name = "application.${var.aws_subdomain}.${var.aws_domain}"
   }
-  iam_instance_profile = "php_demo_role"
-  subnet_id = "subnet-0823df6c43b1a0ea4"
+  iam_instance_profile = "instance_profile_role"
+  subnet_id = element(var.aws_subnet_ids, 0)
 }
 
 # create target group for load balancer
@@ -29,7 +35,7 @@ resource "aws_lb_target_group" "php-tg" {
   name = "php-tg"
   port = 80
   protocol = "HTTP"
-  vpc_id = "vpc-0fb8abe9d3c477bd0"
+  vpc_id = var.aws_vpc_id
   
   health_check {
     path = "/"
@@ -45,8 +51,8 @@ resource "aws_lb" "php-lb" {
   name = "php-lb"
   internal = false
   load_balancer_type = "application"
-  security_groups = ["sg-00d9ca388301c93a9"]
-  subnets = ["subnet-0823df6c43b1a0ea4", "subnet-057dcb202796ed034"]
+  security_groups = [var.aws_security_group]
+  subnets = var.aws_subnet_ids
 }
 
 # create http listener for load balancer
@@ -72,7 +78,7 @@ resource "aws_lb_listener" "php-https-lb-listener" {
     target_group_arn = aws_lb_target_group.php-tg.arn
   }
 
-  certificate_arn = "arn:aws:acm:us-east-1:551796573889:certificate/a96258a9-2996-4186-b5a8-815bf9c5b3e1"
+  certificate_arn = var.aws_ssl_certificate_arn
   ssl_policy = "ELBSecurityPolicy-TLS13-1-3-2021-06"
 }
 
@@ -84,8 +90,8 @@ resource "aws_lb_target_group_attachment" "php-tg-attachment" {
 }
 
 resource "aws_route53_record" "php-dns" {
-  zone_id = "Z02299283BLAIJGG9JHMK"
-  name = "php.digitalsteve.net"
+  zone_id = var.aws_route53_zone_id
+  name = "${var.aws_subdomain}.${var.aws_domain}"
   type = "A"
 
   alias {

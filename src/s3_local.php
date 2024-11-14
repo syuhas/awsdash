@@ -7,7 +7,7 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Aws\Ec2\Ec2Client;
 //  local docker only
-// use Aws\Credentials\CredentialProvider;
+use Aws\Credentials\CredentialProvider;
 
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
@@ -15,8 +15,8 @@ use Aws\Ec2\Ec2Client;
 
 
 // local docker only
-// $provider = CredentialProvider::ini('Stephen', '/usr/src/myapp/src/credentials');
-// $provider = CredentialProvider::memoize($provider);
+$provider = CredentialProvider::ini('Stephen', 'src/credentials');
+$provider = CredentialProvider::memoize($provider);
 
 $s3Client = new S3Client([
     'region' => 'us-east-1',
