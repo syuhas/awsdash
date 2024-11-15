@@ -100,29 +100,64 @@ error_reporting(E_ALL);
 //     'totalCostPerMonth' => $totalCostPerMonth
 // ]);
 
-$url = "http://localhost:8000/s3/list_buckets";
-$ch = curl_init($url);
 
-// Set options
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return the response as a string
-$response = curl_exec($ch); // Execute the request
-curl_close($ch);
-
-$buckets[] = [];
-
-// Decode the JSON response
-$data = json_decode($response, true);
-foreach ($data['Buckets'] as $bucket) {
-    $buckets[] = $bucket['Name'];
-}
-
-foreach($buckets as $bucket) {
-    $objectList = [];
-    $bucketName = $bucket;
-    $url = "http://localhost:8000/s3/list_objects?bucket=$bucketName";
+function listBuckets() {
+    $buckets = [];
+    $url = "http://localhost:8000/s3/list_buckets";
     $ch = curl_init($url);
-    
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    $bucketMetadata = json_decode($response, true);
+    foreach ($bucketMetadata['Buckets'] as $bucket) {
+        if (isset($bucket['Name'])) {
+            $buckets[] = [
+                'Name' => $bucket['Name']
+            ];
+        }
+    }
+    return $buckets;
 }
+
+function listObjects($bucketName) {
+    $objectList = [];
+    $url = "http://localhost:8000/s3/list_objects?bucket_name=$bucketName";
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    $objectsMetadata = json_decode($response, true);
+    foreach ($objectsMetadata['Contents'] as $object) {
+        if (isset($objectsMetadata['Contents'])) {
+            $objectList[] = [
+                'Key' => $object['Key'],
+                'Size' => $object['Size']
+            ];
+        }
+    }
+    return $objectList;
+}
+
+$buckets = listBuckets();
+foreach ($buckets as $bucket) {
+    echo $bucket['Name'];
+    echo "<br><br>";
+}
+
+$objects = listObjects('localdownloads');
+$total = 0;
+foreach ($objects as $object) {
+    // echo $object['Key'];
+    // echo "<br><br>";
+    // echo $object['Size'];
+    // echo "<br><br>";
+    $total += $object['Size'];
+}
+
+echo ((string) round($total / (1024 * 1024 * 1024), 6)) . ' GB';
+echo '<br><br>';
+echo ((string) round($total / (1024 * 1024), 2)) . ' MB';
+
 
 
 ?>
