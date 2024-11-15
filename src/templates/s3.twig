@@ -59,7 +59,10 @@
 </head>
 
 <body>
-    <h1>Bucket Cost Something</h1>
+    <h1>Bucket Cost Report</h1>
+        <div class="row" style="width: 30%; margin: 4rem;">
+            <div class="col">Total Cost of S3 Storage per Month: {{ totalCostPerMonth }}</div>
+        </div>
         {% for bucket in buckets %}
         <ul>
 			<div class="container bucketTable">
@@ -68,12 +71,14 @@
 					<div class="col">Total Size in KB</div>
 					<div class="col">Total Size in MB</div>
 					<div class="col">Total Size in GB</div>
+                    <div class="col">Total Cost</div>
 				</div>
 				<div class="row">
 					<div class="col" style="min-width: 55%">{{ bucket.name }}</div>
 					<div class="col">{{ bucket.totalSizeKB }}</div>
 					<div class="col">{{ bucket.totalSizeMB }}</div>
 					<div class="col">{{ bucket.totalSizeGB }}</div>
+                    <div class="col">{{ bucket.costPerMonth }}</div>
 				</div>
 				<div class="row">
 					<button class="btn btn-secondary bucket" onclick="toggleObjects('objects-{{ loop.index }}')">
