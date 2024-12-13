@@ -20,16 +20,16 @@ $provider = CredentialProvider::memoize($provider);
 
 $s3Client = new S3Client([
     'region' => 'us-east-1',
-    'version' => 'latest'
+    'version' => 'latest',
     // local docker only
-    // 'credentials' => $provider
+    'credentials' => $provider
 ]);
 
 $ec2Client = new Ec2Client([
     'region' => 'us-east-1',
     'version' => 'latest',
     // local docker only
-    // 'credentials' => $provider
+    'credentials' => $provider
 ]);
 
 $bucketData = $s3Client->listBuckets();
@@ -74,7 +74,7 @@ foreach ($bucketData['Buckets'] as $bucket) {
 }
 
 // twig setup
-$loader = new FilesystemLoader('templates');
+$loader = new FilesystemLoader('src/templates');
 $twig = new Environment($loader);
 
 // render twig
