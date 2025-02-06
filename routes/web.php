@@ -18,4 +18,5 @@ Route::get('/', [BucketController::class, 'home'])->name('home');
 Route::get('/cost-explorer', [BucketController::class, 'costExplorer'])->name('cost-explorer');
 Route::get('/object-explorer', [BucketController::class, 'objectExplorer'])->name('object-explorer');
 Route::get('/object-downloader', [BucketController::class, 'objectDownloader'])->name('object-downloader');
+Route::get('/api/bucket-details', [BucketController::class, 'getBucketDetails']);
 

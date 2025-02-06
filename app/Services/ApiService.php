@@ -17,7 +17,7 @@ class ApiService
         return Http::get("{$this->baseUrl}/s3/list_buckets")->json();
     }
 
-    public function listObjects($bucket, $page = 1, $pageSize = 10)
+    public function listObjects($bucket, $page, $pageSize)
     {
         return Http::get("{$this->baseUrl}/s3/list_objects", [
             'bucket' => $bucket,
