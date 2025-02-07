@@ -51,19 +51,13 @@ class BucketController extends Controller
         return view('object', ['objects' => $objects, 'bucket' => $bucket]);
     }
 
-    public function objectDownloader(Request $request)
-    {
-        $bucket = $request->get('bucket', '');
-        $key = $request->get('key', '');
-        $downloadUrl = $bucket && $key ? $this->apiService->downloadObject($bucket, $key) : '';
-        return view('object-downloader', ['downloadUrl' => $downloadUrl]);
-    }
-    
-    // main views end //
-
-
-
-    // helper functions //
+    // public function objectDownloader(Request $request)
+    // {
+    //     $bucket = $request->get('bucket', '');
+    //     $key = $request->get('key', '');
+    //     $downloadUrl = $bucket && $key ? $this->apiService->downloadObject($bucket, $key) : '';
+    //     return view('object-downloader', ['downloadUrl' => $downloadUrl]);
+    // }
 
     // ajax handler //
     public function getBucketDetails(Request $request)
@@ -81,7 +75,7 @@ class BucketController extends Controller
             return response()->json(['error' => 'Bucket not found'], 404);
         }
 
-        $listObjects = $this->apiService->listObjects($bucketName, 1, 50);
+        $listObjects = $this->apiService->listObjects($bucketName, 1, 100);
 
         return response()->json([
             'bucket' => $selectedBucket['bucket'],

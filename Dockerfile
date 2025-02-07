@@ -1,29 +1,32 @@
 #syntax docker/dockerfile:1.0.0
 
-FROM php:8.2-cli
+FROM php:8.2-fpm
 
 RUN apt-get update && apt-get install -y \
     git \
-    unzip
-
-COPY . /usr/src/myapp
-
-WORKDIR /usr/src/myapp
-
-
-
-RUN curl -sS https://getcomposer.org/installer | php && \
-    mv composer.phar /usr/local/bin/composer
+    unzip \
+    curl \
+    nodejs \
+    npm \
+    nginx
 
 
 
-RUN composer require aws/aws-sdk-php
-RUN composer require twig/twig
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN composer install
+COPY . .
 
-RUN ls -a -R /usr/src/myapp
+RUN composer install --no-dev --optimize-autoloader
+
+RUN npm install && npm run build
+
+RUN chown -R www-data:www-data /var/www
+
+# COPY ./deploy/docker/default.conf /etc/nginx/sites-available/default
+# RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+COPY ./deploy/docker/default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
-CMD ["php", "-S", "0.0.0.0:80", "./src/s3.php" ]
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
+
