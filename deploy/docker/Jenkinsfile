@@ -11,12 +11,11 @@ pipeline {
             steps {
                 echo "Testing that all env vars have been gathered correctly"
                 
-                echo "Options: ${env.OPTIONS}"
-                echo "Account: ${env.AWS_ACCOUNT_ID}"
-                echo "Subdomain: ${env.SUBDOMAIN}"
-                echo "Repository: ${env.GIT_REPO}"
-                echo "Branch: ${env.BRANCH}"
-                echo "JenkinsFilePath: ${env.JENKINSFILE_PATH}"
+                echo "Repository: ${params.Repository}"
+                echo "Branch: ${params.Branch}"
+                echo "Options: ${params.Options}"
+                echo "Account: ${env.Account}"
+                echo "Subdomain: ${env.Subdomain}"
             }
         }
     }
