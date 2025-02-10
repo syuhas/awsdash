@@ -101,8 +101,7 @@ pipeline {
                     dir('deploy/docker') {
                         terraformInit()
                         try {
-                            sh 'terraform plan -out=ecr.tfplan -target=aws_ecr_repository.ecr'
-                            sh 'terraform apply -auto-approve ecr.tfplan'
+                            sh 'terraform apply -auto-approve -target=aws_ecr_repository.ecr'
                             env.ECR_REPOSITORY_URL = sh(script: 'terraform output -raw ecr_repository_url', returnStdout: true).trim()
                             sh 'echo "ECR Repository URL: ${ECR_REPOSITORY_URL}"'
                         } catch (Exception e) {
