@@ -132,7 +132,7 @@ pipeline {
                 script {
                     dir('deploy/docker') {
                         terraformInit()
-                        sh "terraform plan -out=ecs-update.tfplan -var 'ecr_image=${ECR_REPOSITORY_URL}:${IMAGE_TAG}'"
+                        sh "terraform plan -out=ecs-update.tfplan -var 'aws_ecr_image=${ECR_REPOSITORY_URL}:${IMAGE_TAG}'"
                         sh "terraform apply -auto-approve ecs-update.tfplan"
                     }
                 }

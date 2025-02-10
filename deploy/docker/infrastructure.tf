@@ -9,7 +9,10 @@ variable "aws_ssl_certificate_arn" {type = string}
 variable "aws_route53_zone_id" {type = string}
 variable "aws_domain" {type = string}
 variable "aws_subdomain" {type = string}
-variable "aws_ecr_image" {type = string}
+variable "aws_ecr_image" {
+    type = string 
+    default = "s3-dashboard:latest"
+}
 
 terraform {
     backend "s3" {}
