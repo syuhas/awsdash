@@ -80,6 +80,24 @@ pipeline {
                 }
             }
         }
+        stage('Retrieve Last Image for Destroy') {
+            when {
+                expression { params.Options == 'Deploy' || params.Options == 'Destroy' }
+            }
+            steps {
+                script {
+                    dir('deploy/docker') {
+                        terraformInit()
+                        env.AWS_ECR_IMAGE = sh(script: "terraform output -raw aws_ecr_image || echo ''", returnStdout: true).trim()
+                        if (!env.AWS_ECR_IMAGE?.trim()) {
+                            echo "No previous image found, skipping ECR image cleanup."
+                        } else {
+                            echo "Retrieved ECR image for cleanup: ${AWS_ECR_IMAGE}"
+                        }
+                    }
+                }
+            }
+        }
         stage('Terraform Destroy Infrastructure') {
             when {
                 expression { params.Options == 'Deploy' || params.Options == 'Destroy' }
