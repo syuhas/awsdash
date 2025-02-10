@@ -26,7 +26,7 @@ RUN chown -R www-data:www-data /var/www
 # RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 COPY ./deploy/docker/default.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
+EXPOSE 8000
 
 CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
 
