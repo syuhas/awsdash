@@ -9,25 +9,25 @@ variable "aws_ssl_certificate_arn" {type = string}
 variable "aws_route53_zone_id" {type = string}
 variable "aws_domain" {type = string}
 variable "aws_subdomain" {type = string}
-variable "aws_ecr_image" {
-    type = string 
-    default = "s3-dashboard:latest"
-}
+# variable "aws_ecr_image" {
+#     type = string 
+#     default = "s3-dashboard:latest"
+# }
 
 terraform {
     backend "s3" {}
 }
 
 
-# #create ecr repository
-# resource "aws_ecr_repository" "ecr" {
-#     name = "s3-dashboard"
-# }
+#create ecr repository
+resource "aws_ecr_repository" "ecr" {
+    name = "s3-dashboard"
+}
 
-# # output the repo url for the build pipeline
-# output "ecr_repository_url" {
-#     value = aws_ecr_repository.ecr.repository_url
-# }
+# output the repo url for the build pipeline
+output "ecr_repository_url" {
+    value = aws_ecr_repository.ecr.repository_url
+}
 
 # create ecs cluster
 resource "aws_ecs_cluster" "cluster" {
@@ -45,7 +45,7 @@ resource "aws_ecs_task_definition" "task" {
     container_definitions = jsonencode([
         {
             name = "s3-dashboard"
-            image = var.aws_ecr_image
+            image = "${aws_ecr_repository.ecr.repository_url}:latest"
             essential = true
             portMappings = [
                 {

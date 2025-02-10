@@ -23,7 +23,7 @@ pipeline {
                     config = readYaml file: 'deploy/docker/config.yaml'
                     accountConfig = config["aws_accounts"]["${AWS_ACCOUNT_ID}"]
                     env.TF_VAR_aws_security_group = accountConfig.security_group
-                    env.TF_VAR_aws_subnet_ids = groovy.json.JsonOutput.toJson(accountConfig.subnet_ids)
+                    env.TF_VAR_aws_subnet_ids = accountConfig.subnet_ids
                     env.TF_VAR_aws_vpc_id = accountConfig.vpc_id
                     env.TF_BUCKET = accountConfig.tf_bucket
                     env.TF_TABLE = accountConfig.tf_table
@@ -57,7 +57,7 @@ pipeline {
                             sh """
                                 terraform init -reconfigure \
                                     -backend-config="bucket=${env.TF_BUCKET}" \
-                                    -backend-config="key=${env.TF_VAR_aws_subdomain}.${env.TF_VAR_aws_domain}/terraform.tfstate" \
+                                    -backend-config="key=${env.TF_VAR_aws_domain}/terraform.tfstate" \
                                     -backend-config="region=${AWS_REGION}" \
                                     -backend-config="dynamodb_table=${env.TF_TABLE}"
                             """
@@ -80,7 +80,18 @@ pipeline {
                 }
             }
         }
-
+        stage('Terraform Destroy Infrastructure') {
+            when {
+                expression { params.Options == 'Deploy' || params.Options == 'Destroy' }
+            }
+            steps {
+                // go to deploy/docker directory
+                dir('deploy/docker') {
+                    terraformInit()
+                    sh 'terraform destroy -auto-approve || echo "No existing infrastructure to destroy."'
+                }
+            }
+        }
         stage('Terraform Deploy ECR Repository') {
             when {
                 expression { params.Options == 'Deploy'  }
@@ -90,11 +101,17 @@ pipeline {
                     dir('deploy/docker') {
                         terraformInit()
                         try {
-                            sh 'terraform apply -auto-approve -target="aws_ecr_repository.ecr"'
+                            sh 'terraform plan -out=ecr.tfplan -target=aws_ecr_repository.ecr'
+                        } catch (Exception e) {
+                            echo "Terraform plan failed: ${e}"
+                            echo "Exiting due to Terraform plan failure"
+                        }
+                        try {
+                            sh 'terraform apply -auto-approve ecr.tfplan'
                             env.ECR_REPOSITORY_URL = sh(script: 'terraform output -raw ecr_repository_url', returnStdout: true).trim()
                             sh 'echo "ECR Repository URL: ${ECR_REPOSITORY_URL}"'
                         } catch (Exception e) {
-                            echo "Terraform failed: ${e}"
+                            echo "Terraform apply failed: ${e}"
                             echo "Rolling back changes"
                             sh "terraform destroy -auto-approve"
                             echo "Exiting due to Terraform apply failure"
@@ -135,18 +152,6 @@ pipeline {
                         sh "terraform plan -out=ecs-update.tfplan -var 'aws_ecr_image=${ECR_REPOSITORY_URL}:${IMAGE_TAG}'"
                         sh "terraform apply -auto-approve ecs-update.tfplan"
                     }
-                }
-            }
-        }
-        stage('Terraform Destroy Infrastructure') {
-            when {
-                expression { params.Options == 'Destroy' }
-            }
-            steps {
-                // go to deploy/docker directory
-                dir('deploy/docker') {
-                    terraformInit()
-                    sh 'terraform destroy -auto-approve || echo "No existing infrastructure to destroy."'
                 }
             }
         }
