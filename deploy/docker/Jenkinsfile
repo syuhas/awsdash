@@ -136,8 +136,8 @@ pipeline {
             }
             steps {
                 script {
-                    sh 'docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${IMAGE_TAG}'
-                    sh 'docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${IMAGE_TAG}'
+                    sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${ECR_REPOSITORY_URL}:${IMAGE_TAG}"
+                    sh "docker push ${ECR_REPOSITORY_URL}:${IMAGE_TAG}"
                 }
             }
         }
@@ -149,7 +149,8 @@ pipeline {
                 script {
                     dir('deploy/docker') {
                         terraformInit()
-                        sh "terraform apply -auto-approve -var 'ecr_image=${ECR_REPOSITORY_URL}:${IMAGE_TAG}'"
+                        sh "terraform plan -out=ecs-update.tfplan -var 'ecr_image=${ECR_REPOSITORY_URL}:${IMAGE_TAG}'"
+                        sh "terraform apply -auto-approve ecs-update.tfplan"
                     }
                 }
             }
