@@ -1,4 +1,4 @@
-@Library('pipeline-library') _  // Use Shared Libraries if available
+// @Library('pipeline-library') _  // Use Shared Libraries if available
 
 import groovy.yaml.YamlSlurper
 
