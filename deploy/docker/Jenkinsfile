@@ -31,6 +31,7 @@ pipeline {
                     // env.TF_VAR_aws_domain = accountConfig.domain
                     // env.TF_VAR_aws_subdomain = "${ params.Subdomain }"
                     echo "Config: ${config}"
+                    echo "Account Config: ${accountConfig}"
 
                 }
                 sh 'echo "Environment Variables Set"'
