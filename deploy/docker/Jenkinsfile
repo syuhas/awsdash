@@ -102,16 +102,11 @@ pipeline {
                         terraformInit()
                         try {
                             sh 'terraform plan -out=ecr.tfplan -target=aws_ecr_repository.ecr'
-                        } catch (Exception e) {
-                            echo "Terraform plan failed: ${e}"
-                            echo "Exiting due to Terraform plan failure"
-                        }
-                        try {
                             sh 'terraform apply -auto-approve ecr.tfplan'
                             env.ECR_REPOSITORY_URL = sh(script: 'terraform output -raw ecr_repository_url', returnStdout: true).trim()
                             sh 'echo "ECR Repository URL: ${ECR_REPOSITORY_URL}"'
                         } catch (Exception e) {
-                            echo "Terraform apply failed: ${e}"
+                            echo "Terraform failed: ${e}"
                             echo "Rolling back changes"
                             sh "terraform destroy -auto-approve"
                             echo "Exiting due to Terraform apply failure"
