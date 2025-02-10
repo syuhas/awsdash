@@ -21,33 +21,34 @@ pipeline {
                     config = readYaml (file: 'deploy/docker/config.yaml')
                     // def config = new YamlSlurper().parseText(readFile('deploy/docker/config.yaml'))
                     accountConfig = config[AWS_ACCOUNT_ID]
-                    env.TF_VAR_aws_security_group = accountConfig.security_group
-                    env.TF_VAR_aws_subnet_ids = accountConfig.subnet_ids.join(',')
-                    env.TF_VAR_aws_vpc_id = accountConfig.vpc_id
-                    env.TF_VAR_aws_tf_bucket = accountConfig.tf_bucket
-                    env.TF_VAR_aws_ssl_certificate_arn = accountConfig.ssl_certificate_arn
-                    env.TF_VAR_aws_route53_zone_id = accountConfig.route53_zone_id
-                    env.TF_VAR_aws_domain = accountConfig.domain
-                    env.TF_VAR_aws_subdomain = "${ params.Subdomain }"
+                    println accountConfig
+                    // env.TF_VAR_aws_security_group = accountConfig.security_group
+                    // env.TF_VAR_aws_subnet_ids = accountConfig.subnet_ids.join(',')
+                    // env.TF_VAR_aws_vpc_id = accountConfig.vpc_id
+                    // env.TF_VAR_aws_tf_bucket = accountConfig.tf_bucket
+                    // env.TF_VAR_aws_ssl_certificate_arn = accountConfig.ssl_certificate_arn
+                    // env.TF_VAR_aws_route53_zone_id = accountConfig.route53_zone_id
+                    // env.TF_VAR_aws_domain = accountConfig.domain
+                    // env.TF_VAR_aws_subdomain = "${ params.Subdomain }"
                 }
                 sh 'echo "Environment Variables Set"'
             }
         }
-        stage('Test Yaml Configs') {
-            steps {
-                script {
-                    echo "Security Group: ${env.TF_VAR_aws_security_group}"
-                    echo "Subnet IDs: ${env.TF_VAR_aws_subnet_ids}"
-                    echo "VPC ID: ${env.TF_VAR_aws_vpc_id}"
-                    echo "Terraform Bucket: ${env.TF_VAR_aws_tf_bucket}"
-                    echo "SSL Certificate ARN: ${env.TF_VAR_aws_ssl_certificate_arn}"
-                    echo "Route53 Zone ID: ${env.TF_VAR_aws_route53_zone_id}"
-                    echo "Domain: ${env.TF_VAR_aws_domain}"
-                    echo "Subdomain: ${env.TF_VAR_aws_subdomain}"
-                }
-            }
+        // stage('Test Yaml Configs') {
+        //     steps {
+        //         script {
+        //             echo "Security Group: ${env.TF_VAR_aws_security_group}"
+        //             echo "Subnet IDs: ${env.TF_VAR_aws_subnet_ids}"
+        //             echo "VPC ID: ${env.TF_VAR_aws_vpc_id}"
+        //             echo "Terraform Bucket: ${env.TF_VAR_aws_tf_bucket}"
+        //             echo "SSL Certificate ARN: ${env.TF_VAR_aws_ssl_certificate_arn}"
+        //             echo "Route53 Zone ID: ${env.TF_VAR_aws_route53_zone_id}"
+        //             echo "Domain: ${env.TF_VAR_aws_domain}"
+        //             echo "Subdomain: ${env.TF_VAR_aws_subdomain}"
+        //         }
+        //     }
         
-        }
+        // }
         // stage('AssumeRole') {
         //     steps {
         //         script {
