@@ -19,15 +19,15 @@ terraform {
 }
 
 
-#create ecr repository
-resource "aws_ecr_repository" "ecr" {
-    name = "s3-dashboard"
-}
+# #create ecr repository
+# resource "aws_ecr_repository" "ecr" {
+#     name = "s3-dashboard"
+# }
 
-# output the repo url for the build pipeline
-output "ecr_repository_url" {
-    value = aws_ecr_repository.ecr.repository_url
-}
+# # output the repo url for the build pipeline
+# output "ecr_repository_url" {
+#     value = aws_ecr_repository.ecr.repository_url
+# }
 
 # create ecs cluster
 resource "aws_ecs_cluster" "cluster" {
