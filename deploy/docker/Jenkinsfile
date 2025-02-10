@@ -139,6 +139,7 @@ pipeline {
             }
             steps {
                 script {
+                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
                     sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
                 }
             }
