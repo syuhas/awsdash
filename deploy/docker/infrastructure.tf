@@ -41,7 +41,7 @@ resource "aws_ecs_task_definition" "task" {
     network_mode = "awsvpc"
     cpu = "256"
     memory = "512"
-    
+    depends_on = [aws_ecr_repository.ecr]
     container_definitions = jsonencode([
         {
             name = "s3-dashboard"
