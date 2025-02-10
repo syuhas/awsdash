@@ -14,7 +14,7 @@ pipeline {
 
 
     stages {
-        stage('SetEnvVariables') {
+        stage('Set Environment Variables') {
             steps {
                 sh 'echo "Account ID: ${AWS_ACCOUNT_ID}"'
                 sh 'echo "Setting Environment Variables"'
@@ -25,7 +25,8 @@ pipeline {
                     env.TF_VAR_aws_security_group = accountConfig.security_group
                     env.TF_VAR_aws_subnet_ids = accountConfig.subnet_ids
                     env.TF_VAR_aws_vpc_id = accountConfig.vpc_id
-                    env.TF_VAR_aws_tf_bucket = accountConfig.tf_bucket
+                    env.aws_tf_bucket = accountConfig.tf_bucket
+                    env.aws_tf_table = accountConfig.tf_table
                     env.TF_VAR_aws_ssl_certificate_arn = accountConfig.ssl_certificate_arn
                     env.TF_VAR_aws_route53_zone_id = accountConfig.route53_zone_id
                     env.TF_VAR_aws_domain = accountConfig.domain
@@ -41,6 +42,7 @@ pipeline {
                     echo "Subnet IDs: ${env.TF_VAR_aws_subnet_ids}"
                     echo "VPC ID: ${env.TF_VAR_aws_vpc_id}"
                     echo "Terraform Bucket: ${env.TF_VAR_aws_tf_bucket}"
+                    echo "Terraform Table: ${env.TF_VAR_aws_tf_table}"
                     echo "SSL Certificate ARN: ${env.TF_VAR_aws_ssl_certificate_arn}"
                     echo "Route53 Zone ID: ${env.TF_VAR_aws_route53_zone_id}"
                     echo "Domain: ${env.TF_VAR_aws_domain}"
@@ -60,6 +62,36 @@ pipeline {
         //             env.AWS_ACCESS_KEY_ID = creds.AccessKeyId
         //             env.AWS_SECRET_ACCESS_KEY = creds.SecretAccessKey
         //             env.AWS_SESSION_TOKEN = creds.SessionToken
+        //         }
+        //     }
+        // }
+        // stage('TerraformInit') {
+        //     steps {
+        //         script {
+        //                 terraformInit = {
+        //                     sh """
+        //                         terraform init -reconfigure \
+        //                             -backend-config="bucket=${env.TF_VAR_aws_tf_bucket}" \
+        //                             -backend-config="key=${env.TF_VAR_aws_domain}/terraform.tfstate" \
+        //                             -backend-config="region=${AWS_REGION}" \
+        //                             -backend-config="dynamodb_table=terraform-lock-table"
+        //                     """
+        //                 }
+        //         }
+        //     }
+        // }
+        // stage('Build Docker Image') {
+        //     steps {
+        //         script {
+        //             sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+        //         }
+        //     }
+        // }
+        // stage('Publish Docker Image') {
+        //     steps {
+        //         script {
+        //             sh 'docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${IMAGE_TAG}'
+        //             sh 'docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${IMAGE_TAG}'
         //         }
         //     }
         // }
