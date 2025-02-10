@@ -9,6 +9,7 @@ variable "aws_ssl_certificate_arn" {type = string}
 variable "aws_route53_zone_id" {type = string}
 variable "aws_domain" {type = string}
 variable "aws_subdomain" {type = string}
+variable "aws_ecr_image" {type = string}
 
 terraform {
     backend "s3" {}
@@ -41,7 +42,7 @@ resource "aws_ecs_task_definition" "task" {
     container_definitions = jsonencode([
         {
             name = "s3-dashboard"
-            image = "${aws_ecr_repository.ecr.repository_url}:latest"
+            image = var.aws_ecr_image
             essential = true
             portMappings = [
                 {
@@ -56,7 +57,7 @@ resource "aws_ecs_task_definition" "task" {
 
 # create target group for load balancer
 resource "aws_lb_target_group" "tg" {
-  name = "php-tg"
+  name = "s3dashboard-tg"
   port = 80
   protocol = "HTTP"
   vpc_id = var.aws_vpc_id
@@ -72,7 +73,7 @@ resource "aws_lb_target_group" "tg" {
 
 # create load balancer
 resource "aws_lb" "lb" {
-  name = "php-lb"
+  name = "s3dashboard-lb"
   internal = false
   load_balancer_type = "application"
   security_groups = [var.aws_security_group]
@@ -81,25 +82,25 @@ resource "aws_lb" "lb" {
 
 # create http listener for load balancer
 resource "aws_lb_listener" "http-listener" {
-  load_balancer_arn = aws_lb.php-lb.arn
+  load_balancer_arn = aws_lb.s3dashboard-lb.arn
   port = 80
   protocol = "HTTP"
 
   default_action {
     type = "forward"
-    target_group_arn = aws_lb_target_group.php-tg.arn
+    target_group_arn = aws_lb_target_group.s3dashboard-tg.arn
   }
 }
 
 # create https listener for load balancer
 resource "aws_lb_listener" "https-listener" {
-  load_balancer_arn = aws_lb.php-lb.arn
+  load_balancer_arn = aws_lb.s3dashboard-lb.arn
   port = 443
   protocol = "HTTPS"
 
   default_action {
     type = "forward"
-    target_group_arn = aws_lb_target_group.php-tg.arn
+    target_group_arn = aws_lb_target_group.s3dashboard-tg.arn
   }
 
   certificate_arn = var.aws_ssl_certificate_arn
@@ -119,7 +120,7 @@ resource "aws_ecs_service" "service" {
         assign_public_ip = true
     }
     load_balancer {
-        target_group_arn = aws_lb_target_group.php-tg.arn
+        target_group_arn = aws_lb_target_group.s3dashboard-tg.arn
         container_name = "s3-dashboard"
         container_port = 8000
     }
