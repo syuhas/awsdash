@@ -17,11 +17,11 @@ pipeline {
         stage('SetEnvVariables') {
             steps {
                 sh 'echo "Setting Environment Variables"'
+                sh 'ls -la deploy/docker'
                 script {
-                    config = readYaml (file: 'deploy/docker/config.yaml')
+                    config = readYaml file: 'deploy/docker/config.yaml'
                     // def config = new YamlSlurper().parseText(readFile('deploy/docker/config.yaml'))
                     accountConfig = config[AWS_ACCOUNT_ID]
-                    println accountConfig
                     // env.TF_VAR_aws_security_group = accountConfig.security_group
                     // env.TF_VAR_aws_subnet_ids = accountConfig.subnet_ids.join(',')
                     // env.TF_VAR_aws_vpc_id = accountConfig.vpc_id
@@ -30,6 +30,8 @@ pipeline {
                     // env.TF_VAR_aws_route53_zone_id = accountConfig.route53_zone_id
                     // env.TF_VAR_aws_domain = accountConfig.domain
                     // env.TF_VAR_aws_subdomain = "${ params.Subdomain }"
+                    echo "Config: ${config}"
+
                 }
                 sh 'echo "Environment Variables Set"'
             }
