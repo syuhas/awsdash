@@ -21,8 +21,9 @@ pipeline {
                 sh 'ls -la deploy/docker'
                 script {
                     config = readYaml file: 'deploy/docker/config.yaml'
+                    acct = ${AWS_ACCOUNT_ID}
                     // def config = new YamlSlurper().parseText(readFile('deploy/docker/config.yaml'))
-                    accountConfig = config[${AWS_ACCOUNT_ID}]
+                    accountConfig = config[acct]
                     // env.TF_VAR_aws_security_group = accountConfig.security_group
                     // env.TF_VAR_aws_subnet_ids = accountConfig.subnet_ids.join(',')
                     // env.TF_VAR_aws_vpc_id = accountConfig.vpc_id
