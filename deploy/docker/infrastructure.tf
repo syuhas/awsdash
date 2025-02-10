@@ -85,25 +85,25 @@ resource "aws_lb" "lb" {
 
 # create http listener for load balancer
 resource "aws_lb_listener" "http-listener" {
-  load_balancer_arn = aws_lb.s3dashboard-lb.arn
+  load_balancer_arn = aws_lb.lb.arn
   port = 80
   protocol = "HTTP"
 
   default_action {
     type = "forward"
-    target_group_arn = aws_lb_target_group.s3dashboard-tg.arn
+    target_group_arn = aws_lb_target_group.tg.arn
   }
 }
 
 # create https listener for load balancer
 resource "aws_lb_listener" "https-listener" {
-  load_balancer_arn = aws_lb.s3dashboard-lb.arn
+  load_balancer_arn = aws_lb.lb.arn
   port = 443
   protocol = "HTTPS"
 
   default_action {
     type = "forward"
-    target_group_arn = aws_lb_target_group.s3dashboard-tg.arn
+    target_group_arn = aws_lb_target_group.tg.arn
   }
 
   certificate_arn = var.aws_ssl_certificate_arn
@@ -123,7 +123,7 @@ resource "aws_ecs_service" "service" {
         assign_public_ip = true
     }
     load_balancer {
-        target_group_arn = aws_lb_target_group.s3dashboard-tg.arn
+        target_group_arn = aws_lb_target_group.tg.arn
         container_name = "s3-dashboard"
         container_port = 8000
     }
