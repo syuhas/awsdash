@@ -113,7 +113,7 @@ pipeline {
         }
         stage('Terraform Deploy ECR Repository') {
             when {
-                expression { params.Options == 'Deploy'  }
+                expression { params.Options == 'Deploy' || params.Options == 'Update' }
             }
             steps {
                 script {
