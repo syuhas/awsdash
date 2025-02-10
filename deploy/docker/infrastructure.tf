@@ -2,6 +2,7 @@ provider "aws" {
     region = "us-east-1"
 }
 
+variable "aws_account_id" {type = string}
 variable "aws_security_group" {type = string}
 variable "aws_subnet_ids" {type = list(string)}
 variable "aws_vpc_id" {type = string}
@@ -41,6 +42,7 @@ resource "aws_ecs_task_definition" "task" {
     network_mode = "awsvpc"
     cpu = "256"
     memory = "512"
+    execution_role_arn = "arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole"
     depends_on = [aws_ecr_repository.ecr]
     container_definitions = jsonencode([
         {
@@ -125,7 +127,7 @@ resource "aws_ecs_service" "service" {
     load_balancer {
         target_group_arn = aws_lb_target_group.tg.arn
         container_name = "s3-dashboard"
-        container_port = 8000
+        container_port = 80
     }
 }
 
