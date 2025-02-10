@@ -80,18 +80,7 @@ pipeline {
                 }
             }
         }
-        stage('Terraform Destroy Infrastructure') {
-            when {
-                expression { params.Options == 'Deploy' || params.Options == 'Destroy' }
-            }
-            steps {
-                // go to deploy/docker directory
-                dir('deploy/docker') {
-                    terraformInit()
-                    sh 'terraform destroy -auto-approve || echo "No existing infrastructure to destroy."'
-                }
-            }
-        }
+
         stage('Terraform Deploy ECR Repository') {
             when {
                 expression { params.Options == 'Deploy'  }
@@ -146,6 +135,18 @@ pipeline {
                         sh "terraform plan -out=ecs-update.tfplan -var 'ecr_image=${ECR_REPOSITORY_URL}:${IMAGE_TAG}'"
                         sh "terraform apply -auto-approve ecs-update.tfplan"
                     }
+                }
+            }
+        }
+        stage('Terraform Destroy Infrastructure') {
+            when {
+                expression { params.Options == 'Destroy' }
+            }
+            steps {
+                // go to deploy/docker directory
+                dir('deploy/docker') {
+                    terraformInit()
+                    sh 'terraform destroy -auto-approve || echo "No existing infrastructure to destroy."'
                 }
             }
         }
