@@ -18,8 +18,8 @@ pipeline {
             steps {
                 sh 'echo "Setting Environment Variables"'
                 script {
-                    config = readYaml (file: 'manifest.yml')
-                    def config = new YamlSlurper().parseText(readFile('deploy/docker/config.yaml'))
+                    config = readYaml (file: 'deploy/docker/config.yaml')
+                    // def config = new YamlSlurper().parseText(readFile('deploy/docker/config.yaml'))
                     accountConfig = config[AWS_ACCOUNT_ID]
                     env.TF_VAR_aws_security_group = accountConfig.security_group
                     env.TF_VAR_aws_subnet_ids = accountConfig.subnet_ids.join(',')
