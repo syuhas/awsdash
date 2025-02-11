@@ -10,13 +10,13 @@ variable "aws_ssl_certificate_arn" {type = string}
 variable "aws_route53_zone_id" {type = string}
 variable "aws_domain" {type = string}
 variable "aws_subdomain" {type = string}
-variable "aws_ecr_image_tag" {
+variable "aws_ecr_image" {
     type = string 
     default = "placeholder"
 }
 variable "aws_ecr_image_tag" {
     type = string 
-    default = "latest"  
+    default = "latest"
 }
 
 terraform {
