@@ -22,9 +22,11 @@ RUN npm install && npm run build
 
 RUN chown -R www-data:www-data /var/www
 
+RUN service nginx stop
+
 COPY ./deploy/docker/default.conf /etc/nginx/sites-available/default
-# COPY ./deploy/docker/default.conf /etc/nginx/sites-enabled/default
-# COPY ./deploy/docker/default.conf /etc/nginx/conf.d/default.conf
+RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+COPY ./deploy/docker/default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
