@@ -56,6 +56,15 @@ resource "aws_ecs_task_definition" "task" {
                     protocol = "tcp"
                 }
             ]
+            logConfiguration = {
+                logDriver = "awsLogs"
+                options = {
+                    awslogs-group = "/ecs/s3dashboard"
+                    awslogs-region = "us-east-1"
+                    awslogs-create-group = "true"
+                    awslogs-stream-prefix = "ecs"
+                }
+            }
         }
     ])
 }
