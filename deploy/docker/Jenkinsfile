@@ -7,7 +7,7 @@ pipeline {
     environment {
         AWS_ACCOUNT_ID = "${ params.Account }"
         AWS_REGION = 'us-east-1'
-        IMAGE_TAG = ${git rev-parse --short HEAD}
+        IMAGE_TAG = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
         IMAGE_NAME = 's3dashboard'
         ROLE_NAME = 'jenkinsAdminXacnt'
     }
