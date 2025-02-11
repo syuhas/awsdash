@@ -57,7 +57,7 @@ resource "aws_ecs_task_definition" "task" {
                 }
             ]
             logConfiguration = {
-                logDriver = "awsLogs"
+                logDriver = "awslogs"
                 options = {
                     awslogs-group = "/ecs/s3dashboard"
                     awslogs-region = "us-east-1"
