@@ -10,9 +10,13 @@ variable "aws_ssl_certificate_arn" {type = string}
 variable "aws_route53_zone_id" {type = string}
 variable "aws_domain" {type = string}
 variable "aws_subdomain" {type = string}
-variable "aws_ecr_image" {
+variable "aws_ecr_image_tag" {
     type = string 
     default = "placeholder"
+}
+variable "aws_ecr_image_tag" {
+    type = string 
+    default = "latest"  
 }
 
 terraform {
@@ -55,7 +59,7 @@ resource "aws_ecs_task_definition" "task" {
     container_definitions = jsonencode([
         {
             name = "s3-dashboard"
-            image = "${aws_ecr_repository.ecr.repository_url}:latest"
+            image = "${aws_ecr_repository.ecr.repository_url}:${var.aws_ecr_image_tag}"
             essential = true
             portMappings = [
                 {

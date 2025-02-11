@@ -7,7 +7,7 @@ pipeline {
     environment {
         AWS_ACCOUNT_ID = "${ params.Account }"
         AWS_REGION = 'us-east-1'
-        IMAGE_TAG = 'latest'
+        IMAGE_TAG = ${git rev-parse --short HEAD}
         IMAGE_NAME = 's3dashboard'
         ROLE_NAME = 'jenkinsAdminXacnt'
     }
@@ -32,6 +32,7 @@ pipeline {
                     env.TF_VAR_aws_route53_zone_id = accountConfig.route53_zone_id
                     env.TF_VAR_aws_domain = accountConfig.domain
                     env.TF_VAR_aws_subdomain = "${ params.Subdomain }"
+                    env.TF_VAR_aws_ecr_image_tag = IMAGE_TAG
                 }
                 sh 'echo "Environment Variables Set"'
             }
