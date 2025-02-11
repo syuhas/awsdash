@@ -50,6 +50,7 @@ resource "aws_ecs_task_definition" "task" {
     cpu = "256"
     memory = "512"
     execution_role_arn = "arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole"
+    task_role_arn = "arn:aws:iam::${var.aws_account_id}:role/admin"
     depends_on = [aws_ecr_repository.ecr, aws_cloudwatch_log_group.ecs_logs]
     container_definitions = jsonencode([
         {
