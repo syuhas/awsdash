@@ -35,6 +35,13 @@ resource "aws_ecs_cluster" "cluster" {
     name = "s3-dashboard"
 }
 
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name = "/ecs/s3dashboard"
+
+  retention_in_days = 30  # Set log retention period (optional)
+}
+
+
 # create task definition
 resource "aws_ecs_task_definition" "task" {
     family = "s3-dashboard"
@@ -43,7 +50,7 @@ resource "aws_ecs_task_definition" "task" {
     cpu = "256"
     memory = "512"
     execution_role_arn = "arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole"
-    depends_on = [aws_ecr_repository.ecr]
+    depends_on = [aws_ecr_repository.ecr, aws_cloudwatch_log_group.ecs_logs]
     container_definitions = jsonencode([
         {
             name = "s3-dashboard"
