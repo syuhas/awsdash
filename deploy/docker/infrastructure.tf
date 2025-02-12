@@ -89,7 +89,7 @@ resource "aws_lb_target_group" "tg" {
   vpc_id = var.aws_vpc_id
   target_type = "ip"
   health_check {
-    path = "/index.php"
+    path = "/"
     interval = 30
     timeout = 5
     healthy_threshold = 2
