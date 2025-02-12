@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AWS Bucket Manager</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @vite(['resources/js/bucketSelect.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/bucketSelect.js'])
 
 </head>
 <body>
