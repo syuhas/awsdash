@@ -94,6 +94,24 @@ pipeline {
                 }
             }
         }
+        stage('Terraform Destroy Only ECR Repository') {
+            when {
+                expression { params.Options == 'Deploy' || params.Options == 'Destroy' || params.Options == 'DestroyECR' }
+            }
+            steps {
+                script {
+                    dir('deploy/docker') {
+                        terraformInit()
+                        try {
+                            sh 'terraform destroy -auto-approve -target=aws_ecr_repository.ecr'
+                        } catch (Exception e) {
+                            echo "Terraform destroy failed: ${e}"
+                            echo "Exiting due to Terraform destroy failure"
+                        }
+                    }
+                }
+            }
+        }
         stage('Terraform Deploy ECR Repository') {
             when {
                 expression { params.Options == 'Deploy' || params.Options == 'Update' }
