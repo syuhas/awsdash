@@ -14,6 +14,22 @@ pipeline {
 
 
     stages {
+        stage('AssumeRole') {
+            steps {
+                script {
+                    def assumeRoleCmd = """
+                        aws sts assume-role --role-arn arn:aws:iam::${AWS_ACCOUNT_ID}:role/${ROLE_NAME} --role-session-name CrossAccountSession
+                    """
+                    def assumeRoleOutput = sh(script: assumeRoleCmd, returnStdout: true).trim()
+                    def creds = readJSON(text: assumeRoleOutput).Credentials
+
+                    env.AWS_ACCESS_KEY_ID = creds.AccessKeyId
+                    env.AWS_SECRET_ACCESS_KEY = creds.SecretAccessKey
+                    env.AWS_SESSION_TOKEN = creds.SessionToken
+                }
+            }
+        }
+
         stage('Initialize Terraform Backend') {
             steps {
                 script {
@@ -80,22 +96,6 @@ pipeline {
                     echo "Domain: ${env.TF_VAR_aws_domain}"
                     echo "Subdomain: ${env.TF_VAR_aws_subdomain}"
                     echo "ECR Repository URL: ${env.ECR_REPOSITORY_URL}" || echo "ECR Repository not yet created"
-                }
-            }
-        }
-
-        stage('AssumeRole') {
-            steps {
-                script {
-                    def assumeRoleCmd = """
-                        aws sts assume-role --role-arn arn:aws:iam::${AWS_ACCOUNT_ID}:role/${ROLE_NAME} --role-session-name CrossAccountSession
-                    """
-                    def assumeRoleOutput = sh(script: assumeRoleCmd, returnStdout: true).trim()
-                    def creds = readJSON(text: assumeRoleOutput).Credentials
-
-                    env.AWS_ACCESS_KEY_ID = creds.AccessKeyId
-                    env.AWS_SECRET_ACCESS_KEY = creds.SecretAccessKey
-                    env.AWS_SESSION_TOKEN = creds.SessionToken
                 }
             }
         }
