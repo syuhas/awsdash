@@ -96,17 +96,18 @@ pipeline {
         }
         stage('Terraform Destroy Only ECR Repository') {
             when {
-                expression { params.Options == 'Deploy' || params.Options == 'Destroy' || params.Options == 'DestroyECR' }
+                expression { params.Options == 'DestroyECR' }
             }
             steps {
                 script {
                     dir('deploy/docker') {
                         terraformInit()
                         try {
-                            sh 'terraform destroy -auto-approve -target=aws_ecr_repository.ecr'
-                        } catch (Exception e) {
-                            echo "Terraform destroy failed: ${e}"
-                            echo "Exiting due to Terraform destroy failure"
+                            sh 'terraform state show aws_ecr_repository.ecr'
+                            sh 'terraform output -raw ecr_repository_url'
+                            env.ECR_REPOSITORY_URL = sh(script: 'terraform output -raw ecr_repository_url', returnStdout: true).trim()
+                            sh 'echo "Deleting Repository URL: ${ECR_REPOSITORY_URL}"'
+                            sh 'aws ecr e
                         }
                     }
                 }
