@@ -27,6 +27,7 @@ terraform {
 #create ecr repository
 resource "aws_ecr_repository" "ecr" {
     name = "s3-dashboard"
+    force_delete = true
 }
 
 # output the repo url for the build pipeline
