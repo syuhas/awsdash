@@ -14,6 +14,22 @@ pipeline {
 
 
     stages {
+        stage('Initialize Terraform Backend') {
+            steps {
+                script {
+                        terraformInit = {
+                            sh """
+                                terraform init -reconfigure \
+                                    -backend-config="bucket=${env.TF_BUCKET}" \
+                                    -backend-config="key=${env.TF_VAR_aws_subdomain}.${env.TF_VAR_aws_domain}/terraform.tfstate" \
+                                    -backend-config="region=${AWS_REGION}" \
+                                    -backend-config="dynamodb_table=${env.TF_TABLE}"
+                            """
+                        }
+                }
+            }
+        }
+
         stage('Set Environment Variables') {
             steps {
                 sh 'echo "Account ID: ${AWS_ACCOUNT_ID}"'
@@ -35,9 +51,23 @@ pipeline {
                     env.TF_VAR_aws_ecr_image_tag = IMAGE_TAG
                 }
                 sh 'echo "Environment Variables Set"'
+
+                script {
+                    dir('deploy/docker') {
+                        try {
+                            terraformInit()
+                            sh 'terraform state show aws_ecr_repository.ecr'
+                            sh 'terraform output -raw ecr_repository_url'
+                            env.ECR_REPOSITORY_URL = sh(script: 'terraform output -raw ecr_repository_url', returnStdout: true).trim()
+                        } catch (Exception e) {
+                            echo "ECR Repository not yet created, skipping..."
+                        }
+                    }
+                }
             }
         }
-        stage('Test Yaml Configs') {
+
+        stage('Test Environment Variables') {
             steps {
                 script {
                     echo "Security Group: ${env.TF_VAR_aws_security_group}"
@@ -49,24 +79,11 @@ pipeline {
                     echo "Route53 Zone ID: ${env.TF_VAR_aws_route53_zone_id}"
                     echo "Domain: ${env.TF_VAR_aws_domain}"
                     echo "Subdomain: ${env.TF_VAR_aws_subdomain}"
+                    echo "ECR Repository URL: ${env.ECR_REPOSITORY_URL}" || echo "ECR Repository not yet created"
                 }
             }
         }
-        stage('Terraform Backend') {
-            steps {
-                script {
-                        terraformInit = {
-                            sh """
-                                terraform init -reconfigure \
-                                    -backend-config="bucket=${env.TF_BUCKET}" \
-                                    -backend-config="key=${env.TF_VAR_aws_subdomain}.${env.TF_VAR_aws_domain}/terraform.tfstate" \
-                                    -backend-config="region=${AWS_REGION}" \
-                                    -backend-config="dynamodb_table=${env.TF_TABLE}"
-                            """
-                        }
-                }
-            }
-        }
+
         stage('AssumeRole') {
             steps {
                 script {
@@ -82,19 +99,35 @@ pipeline {
                 }
             }
         }
-        stage('Terraform Destroy Infrastructure') {
+
+        // stage('Fetch ECR Repository URL') {
+        //     when {
+        //         expression { params.Options == 'Deploy' || params.Options == 'Update' || params.Options == 'DestroyECR' }
+        //     }
+        //     steps {
+
+        //     }
+        // }
+
+        stage('Destroy Infrastructure') {
             when {
                 expression { params.Options == 'Deploy' || params.Options == 'Destroy' }
             }
             steps {
                 // go to deploy/docker directory
                 dir('deploy/docker') {
-                    terraformInit()
-                    sh 'terraform destroy -auto-approve || echo "No existing infrastructure to destroy."'
+                    try {
+                        terraformInit()
+                        sh 'terraform destroy -auto-approve || echo "No existing infrastructure to destroy."'
+                    } catch (Exception e) {
+                        echo "Terraform destroy failed: ${e}"
+                        echo "Exiting due to Terraform destroy failure"
+                    }
                 }
             }
         }
-        stage('Terraform Destroy Only ECR Repository') {
+
+        stage('Destroy ECR Repository') {
             when {
                 expression { params.Options == 'DestroyECR' }
             }
@@ -103,19 +136,21 @@ pipeline {
                     dir('deploy/docker') {
                         terraformInit()
                         try {
-                            sh 'terraform state show aws_ecr_repository.ecr'
-                            sh 'terraform output -raw ecr_repository_url'
-                            env.ECR_REPOSITORY_URL = sh(script: 'terraform output -raw ecr_repository_url', returnStdout: true).trim()
                             sh 'echo "Deleting Repository URL: ${ECR_REPOSITORY_URL}"'
-                            sh 'aws ecr e
+                            sh 'aws ecr delete-repository --repository-name ${ECR_REPOSITORY_URL} --force'
+                            sh 'echo "ECR Repository Deleted ${ECR_REPOSITORY_URL}"'
+                        } catch (Exception e) {
+                            echo "Terraform destroy failed: ${e}"
+                            echo "Exiting due to Terraform destroy failure"
                         }
                     }
                 }
             }
         }
-        stage('Terraform Deploy ECR Repository') {
+
+        stage('Deploy ECR Repository') {
             when {
-                expression { params.Options == 'Deploy' || params.Options == 'Update' }
+                expression { params.Options == 'Deploy' || params.Options == 'Update' && (env.ECR_REPOSITORY_URL == null || env.ECR_REPOSITORY_URL == '') }
             }
             steps {
                 script {
@@ -136,6 +171,7 @@ pipeline {
                 }
             }
         }
+
         stage('Build Docker Image') {
             when {
                 expression { params.Options == 'Deploy' || params.Options == 'Update'  }
@@ -147,7 +183,8 @@ pipeline {
                 }
             }
         }
-        stage('Publish Docker Image') {
+
+        stage('Push Docker Image') {
             when {
                 expression { params.Options == 'Deploy' || params.Options == 'Update'  }
             }
@@ -158,7 +195,8 @@ pipeline {
                 }
             }
         }
-        stage('Terraform Update ECS Service') {
+
+        stage('Deploy Infrastructure') {
             when {
                 expression { params.Options == 'Deploy' || params.Options == 'Update' }
             }
@@ -171,6 +209,14 @@ pipeline {
                     }
                 }
             }
+        }
+
+    }
+
+    post {
+        always {
+            echo 'Cleaning up workspace'
+            cleanWs()
         }
     }
 }
