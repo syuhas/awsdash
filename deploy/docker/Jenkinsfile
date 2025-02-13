@@ -32,8 +32,8 @@ pipeline {
 
         stage('Set Environment Variables') {
             steps {
-                sh 'echo "Account ID: ${AWS_ACCOUNT_ID}"'
-                sh 'echo "Setting Environment Variables"'
+                echo "Account ID: ${AWS_ACCOUNT_ID}"
+                echo "Setting Environment Variables"
                 sh 'ls -la deploy/docker'
                 script {
                     config = readYaml file: 'deploy/docker/config.yaml'
@@ -50,7 +50,7 @@ pipeline {
                     env.TF_VAR_aws_subdomain = "${ params.Subdomain }"
                     env.TF_VAR_aws_ecr_image_tag = IMAGE_TAG
                 }
-                sh 'echo "Environment Variables Set"'
+                echo "Environment Variables Set"
 
                 script {
                     dir('deploy/docker') {
@@ -114,14 +114,15 @@ pipeline {
                 expression { params.Options == 'Deploy' || params.Options == 'Destroy' }
             }
             steps {
-                // go to deploy/docker directory
-                dir('deploy/docker') {
-                    try {
+                script{
+                    dir('deploy/docker') {
                         terraformInit()
-                        sh 'terraform destroy -auto-approve || echo "No existing infrastructure to destroy."'
-                    } catch (Exception e) {
-                        echo "Terraform destroy failed: ${e}"
-                        echo "Exiting due to Terraform destroy failure"
+                        try {
+                            sh 'terraform destroy -auto-approve || echo "No existing infrastructure to destroy."'
+                        } catch (Exception e) {
+                            echo "Terraform destroy failed: ${e}"
+                            echo "Exiting due to Terraform destroy failure"
+                        }
                     }
                 }
             }
@@ -136,9 +137,9 @@ pipeline {
                     dir('deploy/docker') {
                         terraformInit()
                         try {
-                            sh 'echo "Deleting Repository URL: ${ECR_REPOSITORY_URL}"'
+                            echo "Deleting Repository URL: ${ECR_REPOSITORY_URL}"
                             sh 'aws ecr delete-repository --repository-name ${ECR_REPOSITORY_URL} --force'
-                            sh 'echo "ECR Repository Deleted ${ECR_REPOSITORY_URL}"'
+                            echo "ECR Repository Deleted ${ECR_REPOSITORY_URL}"
                         } catch (Exception e) {
                             echo "Terraform destroy failed: ${e}"
                             echo "Exiting due to Terraform destroy failure"
@@ -160,7 +161,7 @@ pipeline {
                             sh 'terraform plan -out=ecr.tfplan -target=aws_ecr_repository.ecr'
                             sh 'terraform apply -auto-approve ecr.tfplan'
                             env.ECR_REPOSITORY_URL = sh(script: 'terraform output -raw ecr_repository_url', returnStdout: true).trim()
-                            sh 'echo "ECR Repository URL: ${ECR_REPOSITORY_URL}"'
+                            echo "ECR Repository URL: ${ECR_REPOSITORY_URL}"
                         } catch (Exception e) {
                             echo "Terraform apply failed: ${e}"
                             echo "Rolling back changes"
