@@ -172,8 +172,8 @@ pipeline {
             steps {
                 script {
                     dir('deploy/docker') {
-                        sh 'chmod +x scripts/*.sh'
-                        sh './scripts/*.sh'
+                        sh 'chmod +x *.sh'
+                        sh '*.sh'
                     }
                     cat '.env'
                 }
