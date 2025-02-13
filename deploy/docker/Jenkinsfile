@@ -173,7 +173,7 @@ pipeline {
                 script {
                     dir('deploy/docker') {
                         sh 'chmod +x *.sh'
-                        sh '*.sh'
+                        sh './*.sh'
                     }
                     cat '.env'
                 }
