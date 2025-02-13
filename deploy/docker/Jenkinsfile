@@ -175,7 +175,7 @@ pipeline {
                         sh 'chmod +x *.sh'
                         sh './*.sh'
                     }
-                    cat '.env'
+                    sh 'cat .env'
                 }
             }
         }
