@@ -11,11 +11,11 @@ variable "aws_route53_zone_id" {type = string}
 variable "aws_domain" {type = string}
 variable "aws_subdomain" {type = string}
 variable "aws_ecr_image" {
-    type = string 
+    type = string
     default = "placeholder"
 }
 variable "aws_ecr_image_tag" {
-    type = string 
+    type = string
     default = "latest"
 }
 

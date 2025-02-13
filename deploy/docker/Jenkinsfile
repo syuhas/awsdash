@@ -100,15 +100,6 @@ pipeline {
             }
         }
 
-        // stage('Fetch ECR Repository URL') {
-        //     when {
-        //         expression { params.Options == 'Deploy' || params.Options == 'Update' || params.Options == 'DestroyECR' }
-        //     }
-        //     steps {
-
-        //     }
-        // }
-
         stage('Destroy Infrastructure') {
             when {
                 expression { params.Options == 'Deploy' || params.Options == 'Destroy' }
@@ -169,6 +160,22 @@ pipeline {
                             echo "Exiting due to Terraform apply failure"
                         }
                     }
+                }
+            }
+        }
+
+        // Per application basis; Run only when additional configuration is needed
+        stage('Run Application Scripts') {
+            when {
+                expression { params.Options == 'BashTest' }
+            }
+            steps {
+                script {
+                    dir('deploy/docker') {
+                        sh 'chmod +x scripts/*.sh'
+                        sh './scripts/*.sh'
+                    }
+                    cat '.env'
                 }
             }
         }

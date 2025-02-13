@@ -9,7 +9,7 @@ LOCAL_API_BASE_URL=http://localhost:8000/api
 VITE_APP_URL=https://php.dev.digitalsteve.net
 ASSET_URL=https://php.dev.digitalsteve.net
 
-FORCE_HTTPS=false
+FORCE_HTTPS=true
 
 LOG_CHANNEL=stack
 LOG_DEPRECATIONS_CHANNEL=null
