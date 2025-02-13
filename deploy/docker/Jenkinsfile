@@ -167,7 +167,7 @@ pipeline {
         // Per application basis; Run only when additional configuration is needed
         stage('Run Application Scripts') {
             when {
-                expression { params.Options == 'BashTest' }
+                expression { params.Options == 'Deploy' || params.Options == 'Update' }
             }
             steps {
                 script {
