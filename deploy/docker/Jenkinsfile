@@ -151,7 +151,7 @@ pipeline {
 
         stage('Deploy ECR Repository') {
             when {
-                expression { params.Options == 'Deploy' || params.Options == 'Update' && (env.ECR_REPOSITORY_URL == null || env.ECR_REPOSITORY_URL == '') }
+                expression { (params.Options == 'Deploy' || params.Options == 'Update') && (env.ECR_REPOSITORY_URL == null || env.ECR_REPOSITORY_URL == '') }
             }
             steps {
                 script {
