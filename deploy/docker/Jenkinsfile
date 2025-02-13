@@ -95,7 +95,7 @@ pipeline {
                     echo "Route53 Zone ID: ${env.TF_VAR_aws_route53_zone_id}"
                     echo "Domain: ${env.TF_VAR_aws_domain}"
                     echo "Subdomain: ${env.TF_VAR_aws_subdomain}"
-                    echo "ECR Repository URL: ${env.ECR_REPOSITORY_URL}" || echo "ECR Repository not yet created"
+                    echo "ECR Repository URL: ${env.ECR_REPOSITORY_URL ?: 'ECR Repository not yet created'}"
                 }
             }
         }
