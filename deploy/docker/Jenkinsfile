@@ -100,6 +100,7 @@ pipeline {
                 script {
                     dir('deploy/docker') {
                         terraformInit()
+                        sh 'terrafor refresh'
                         sh 'terraform output -raw ecr_repository_url'
                         sh 'terraform output -raw execution_role'
                         sh 'terraform output -raw task_role'
