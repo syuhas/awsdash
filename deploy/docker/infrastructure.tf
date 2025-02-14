@@ -1,8 +1,9 @@
 provider "aws" {
-    region = "us-east-1"
+    region = var.aws_region
 }
 
 variable "aws_account_id" {type = string}
+variable "aws_region" {type = string}
 variable "aws_security_group" {type = string}
 variable "aws_subnet_ids" {type = list(string)}
 variable "aws_vpc_id" {type = string}
@@ -18,7 +19,9 @@ variable "aws_ecr_image_tag" {
     type = string
     default = "latest"
 }
-
+variable "app_name" {type = string}
+variable "execution_role" {type = string}
+variable "task_role" {type = string}
 terraform {
     backend "s3" {}
 }
@@ -26,7 +29,7 @@ terraform {
 
 #create ecr repository
 resource "aws_ecr_repository" "ecr" {
-    name = "s3-dashboard"
+    name = var.app_name
     force_delete = true
 }
 
@@ -37,11 +40,11 @@ output "ecr_repository_url" {
 
 # create ecs cluster
 resource "aws_ecs_cluster" "cluster" {
-    name = "s3-dashboard"
+    name = var.app_name
 }
 
 resource "aws_cloudwatch_log_group" "ecs_logs" {
-  name = "/ecs/s3dashboard"
+  name = "ecs/${var.app_name}"
 
   retention_in_days = 30  # Set log retention period (optional)
 }
@@ -49,17 +52,17 @@ resource "aws_cloudwatch_log_group" "ecs_logs" {
 
 # create task definition
 resource "aws_ecs_task_definition" "task" {
-    family = "s3-dashboard"
+    family = var.app_name
     requires_compatibilities = ["FARGATE"]
     network_mode = "awsvpc"
     cpu = "256"
     memory = "512"
-    execution_role_arn = "arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole"
-    task_role_arn = "arn:aws:iam::${var.aws_account_id}:role/admin"
+    execution_role_arn = "arn:aws:iam::${var.aws_account_id}:role/${var.execution_role}"
+    task_role_arn = "arn:aws:iam::${var.aws_account_id}:role/${var.task_role}"
     depends_on = [aws_ecr_repository.ecr, aws_cloudwatch_log_group.ecs_logs]
     container_definitions = jsonencode([
         {
-            name = "s3-dashboard"
+            name = var.app_name
             image = "${aws_ecr_repository.ecr.repository_url}:${var.aws_ecr_image_tag}"
             essential = true
             portMappings = [
@@ -72,8 +75,8 @@ resource "aws_ecs_task_definition" "task" {
             logConfiguration = {
                 logDriver = "awslogs"
                 options = {
-                    awslogs-group = "/ecs/s3dashboard"
-                    awslogs-region = "us-east-1"
+                    awslogs-group = "/ecs/${var.app_name}"
+                    awslogs-region = provider.aws.region
                     awslogs-create-group = "true"
                     awslogs-stream-prefix = "ecs"
                 }
@@ -84,7 +87,7 @@ resource "aws_ecs_task_definition" "task" {
 
 # create target group for load balancer
 resource "aws_lb_target_group" "tg" {
-  name = "s3dashboard-tg"
+  name = "${var.app_name}-tg"
   port = 80
   protocol = "HTTP"
   vpc_id = var.aws_vpc_id
@@ -100,7 +103,7 @@ resource "aws_lb_target_group" "tg" {
 
 # create load balancer
 resource "aws_lb" "lb" {
-  name = "s3dashboard-lb"
+  name = "${var.app_name}-lb"
   internal = false
   load_balancer_type = "application"
   security_groups = [var.aws_security_group]
@@ -136,7 +139,7 @@ resource "aws_lb_listener" "https-listener" {
 
 # create ecs service
 resource "aws_ecs_service" "service" {
-    name = "s3-dashboard"
+    name = var.app_name
     cluster = aws_ecs_cluster.cluster.arn
     task_definition = aws_ecs_task_definition.task.arn
     desired_count = 1
@@ -150,7 +153,7 @@ resource "aws_ecs_service" "service" {
     }
     load_balancer {
         target_group_arn = aws_lb_target_group.tg.arn
-        container_name = "s3-dashboard"
+        container_name = var.app_name
         container_port = 80
     }
 }
@@ -166,4 +169,50 @@ resource "aws_route53_record" "subdomain" {
         zone_id = aws_lb.lb.zone_id
         evaluate_target_health = true
     }
+}
+
+
+
+
+output "name" {
+    value = var.app_name
+}
+output "execution_role" {
+    value = var.execution_role
+}
+output "task_role" {
+    value = var.task_role
+}
+output "aws_ecr_image" {
+    value = var.aws_ecr_image
+}
+output "aws_ecr_image_tag" {
+    value = var.aws_ecr_image_tag
+}
+output "aws_account_id" {
+    value = var.aws_account_id
+}
+output "aws_region" {
+    value = var.aws_region
+}
+output "aws_security_group" {
+    value = var.aws_security_group
+}
+output "aws_subnet_ids" {
+    value = var.aws_subnet_ids
+}
+output "aws_vpc_id" {
+    value = var.aws_vpc_id
+}
+output "aws_ssl_certificate_arn" {
+    value = var.aws_ssl_certificate_arn
+}
+output "aws_route53_zone_id" {
+    value = var.aws_route53_zone_id
+}
+output "aws_domain" {
+    value = var.aws_domain
+}
+output "aws_subdomain" {
+    value = var.aws_subdomain
 }

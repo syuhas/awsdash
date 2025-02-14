@@ -6,31 +6,11 @@ pipeline {
     agent any
     environment {
         AWS_ACCOUNT_ID = "${ params.Account }"
-        AWS_REGION = 'us-east-1'
         IMAGE_TAG = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-        IMAGE_NAME = 's3dashboard'
-        ROLE_NAME = 'jenkinsAdminXacnt'
     }
 
-
     stages {
-        stage('AssumeRole') {
-            steps {
-                script {
-                    def assumeRoleCmd = """
-                        aws sts assume-role --role-arn arn:aws:iam::${AWS_ACCOUNT_ID}:role/${ROLE_NAME} --role-session-name CrossAccountSession
-                    """
-                    def assumeRoleOutput = sh(script: assumeRoleCmd, returnStdout: true).trim()
-                    def creds = readJSON(text: assumeRoleOutput).Credentials
-
-                    env.AWS_ACCESS_KEY_ID = creds.AccessKeyId
-                    env.AWS_SECRET_ACCESS_KEY = creds.SecretAccessKey
-                    env.AWS_SESSION_TOKEN = creds.SessionToken
-                }
-            }
-        }
-
-        stage('Initialize Terraform Backend') {
+        stage('Terraform Backend') {
             steps {
                 script {
                         terraformInit = {
@@ -38,7 +18,7 @@ pipeline {
                                 terraform init -reconfigure \
                                     -backend-config="bucket=${env.TF_BUCKET}" \
                                     -backend-config="key=${env.TF_VAR_aws_subdomain}.${env.TF_VAR_aws_domain}/terraform.tfstate" \
-                                    -backend-config="region=${AWS_REGION}" \
+                                    -backend-config="region=${env.TF_VAR_aws_region}" \
                                     -backend-config="dynamodb_table=${env.TF_TABLE}"
                             """
                         }
@@ -47,6 +27,9 @@ pipeline {
         }
 
         stage('Set Environment Variables') {
+            when {
+                expression { params.Options == 'TestEnv' }
+            }
             steps {
                 echo "Account ID: ${AWS_ACCOUNT_ID}"
                 echo "Setting Environment Variables"
@@ -54,7 +37,9 @@ pipeline {
                 script {
                     config = readYaml file: 'deploy/docker/config.yaml'
                     accountConfig = config["aws_accounts"]["${AWS_ACCOUNT_ID}"]
+                    env.TF_VAR_app_name = config.app_name
                     env.TF_VAR_aws_account_id = AWS_ACCOUNT_ID
+                    env.TF_VAR_aws_region = config.region
                     env.TF_VAR_aws_security_group = accountConfig.security_group
                     env.TF_VAR_aws_subnet_ids = groovy.json.JsonOutput.toJson(accountConfig.subnet_ids)
                     env.TF_VAR_aws_vpc_id = accountConfig.vpc_id
@@ -65,6 +50,9 @@ pipeline {
                     env.TF_VAR_aws_domain = accountConfig.domain
                     env.TF_VAR_aws_subdomain = "${ params.Subdomain }"
                     env.TF_VAR_aws_ecr_image_tag = IMAGE_TAG
+                    env.XACNT_ROLE = accountConfig.cross_account_role
+                    env.TF_VAR_execution_role = accountConfig.execution_role
+                    env.TF_VAR_task_role = accountConfig.task_role
                 }
                 echo "Environment Variables Set"
 
@@ -80,12 +68,11 @@ pipeline {
                         }
                     }
                 }
-            }
-        }
 
-        stage('Test Environment Variables') {
-            steps {
                 script {
+                    echo "App Name: ${env.TF_VAR_app_name}"
+                    echo "Account ID: ${env.TF_VAR_aws_account_id}"
+                    echo "AWS Region: ${env.TF_VAR_aws_region}"
                     echo "Security Group: ${env.TF_VAR_aws_security_group}"
                     echo "Subnet IDs: ${env.TF_VAR_aws_subnet_ids}"
                     echo "VPC ID: ${env.TF_VAR_aws_vpc_id}"
@@ -95,10 +82,62 @@ pipeline {
                     echo "Route53 Zone ID: ${env.TF_VAR_aws_route53_zone_id}"
                     echo "Domain: ${env.TF_VAR_aws_domain}"
                     echo "Subdomain: ${env.TF_VAR_aws_subdomain}"
+                    echo "Image Tag: ${env.TF_VAR_aws_ecr_image_tag}"
+                    echo "Cross Account Role: ${env.XACNT_ROLE}"
+                    echo "Execution Role: ${env.TF_VAR_execution_role}"
+                    echo "Task Role: ${env.TF_VAR_task_role}"
                     echo "ECR Repository URL: ${env.ECR_REPOSITORY_URL ?: 'ECR Repository not yet created'}"
                 }
             }
         }
+
+
+        stage('TestTerraformOutputs') {
+            when {
+                expression { params.Options == 'TestEnv' }
+            }
+            steps {
+                script {
+                    dir('deploy/docker') {
+                        terraformInit()
+                        sh 'terraform output'
+                    }
+                }
+            }
+        }
+
+        stage('AssumeRole') {
+            steps {
+                script {
+                    def assumeRoleCmd = """
+                        aws sts assume-role --role-arn arn:aws:iam::${env.TF_VAR_aws_account_id}:role/${XACNT_ROLE} --role-session-name CrossAccountSession
+                    """
+                    def assumeRoleOutput = sh(script: assumeRoleCmd, returnStdout: true).trim()
+                    def creds = readJSON(text: assumeRoleOutput).Credentials
+
+                    env.AWS_ACCESS_KEY_ID = creds.AccessKeyId
+                    env.AWS_SECRET_ACCESS_KEY = creds.SecretAccessKey
+                    env.AWS_SESSION_TOKEN = creds.SessionToken
+                }
+            }
+        }
+
+        // stage('Test Environment Variables') {
+        //     steps {
+        //         script {
+        //             echo "Security Group: ${env.TF_VAR_aws_security_group}"
+        //             echo "Subnet IDs: ${env.TF_VAR_aws_subnet_ids}"
+        //             echo "VPC ID: ${env.TF_VAR_aws_vpc_id}"
+        //             echo "Terraform Bucket: ${env.TF_BUCKET}"
+        //             echo "Terraform Table: ${env.TF_TABLE}"
+        //             echo "SSL Certificate ARN: ${env.TF_VAR_aws_ssl_certificate_arn}"
+        //             echo "Route53 Zone ID: ${env.TF_VAR_aws_route53_zone_id}"
+        //             echo "Domain: ${env.TF_VAR_aws_domain}"
+        //             echo "Subdomain: ${env.TF_VAR_aws_subdomain}"
+        //             echo "ECR Repository URL: ${env.ECR_REPOSITORY_URL ?: 'ECR Repository not yet created'}"
+        //         }
+        //     }
+        // }
 
         stage('Destroy Infrastructure') {
             when {
@@ -171,11 +210,16 @@ pipeline {
             }
             steps {
                 script {
-                    dir('deploy/docker') {
-                        sh 'chmod +x *.sh'
-                        sh './*.sh'
+                    try {
+                        dir('deploy/docker') {
+                            sh 'chmod +x *.sh'
+                            sh './*.sh'
+                        }
+                        sh 'cat .env'
+                    } catch (Exception e) {
+                        echo "Application scripts failed or no scripts found: ${e}"
+                        echo "Exiting due to application scripts failure"
                     }
-                    sh 'cat .env'
                 }
             }
         }
@@ -186,8 +230,8 @@ pipeline {
             }
             steps {
                 script {
-                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
-                    sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${env.TF_VAR_aws_account_id}.dkr.ecr.${env.TF_VAR_aws_region}.amazonaws.com'
+                    sh 'docker build -t ${env.TF_VAR_app_name}:${env.TF_VAR_aws_ecr_image_tag} .'
                 }
             }
         }
@@ -198,8 +242,8 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${ECR_REPOSITORY_URL}:${IMAGE_TAG}"
-                    sh "docker push ${ECR_REPOSITORY_URL}:${IMAGE_TAG}"
+                    sh "docker tag ${env.TF_VAR_app_name}:${env.TF_VAR_aws_ecr_image_tag} ${ECR_REPOSITORY_URL}:${env.TF_VAR_aws_ecr_image_tag}"
+                    sh "docker push ${ECR_REPOSITORY_URL}:${env.TF_VAR_aws_ecr_image_tag}"
                 }
             }
         }
@@ -212,7 +256,7 @@ pipeline {
                 script {
                     dir('deploy/docker') {
                         terraformInit()
-                        sh "terraform plan -out=ecs-update.tfplan -var 'aws_ecr_image=${ECR_REPOSITORY_URL}:${IMAGE_TAG}'"
+                        sh "terraform plan -out=ecs-update.tfplan -var 'aws_ecr_image=${ECR_REPOSITORY_URL}:${env.TF_VAR_aws_ecr_image_tag}'"
                         sh "terraform apply -auto-approve ecs-update.tfplan"
                     }
                 }
