@@ -108,7 +108,7 @@ pipeline {
                         sh 'terraform output -raw aws_account_id'
                         sh 'terraform output -raw aws_region'
                         sh 'terraform output -raw aws_security_group'
-                        sh 'terraform output -raw aws_subnet_ids'
+                        sh 'echo "Subnet IDs: $(terraform output -json aws_subnet_ids | jq -c .)"'
                         sh 'terraform output -raw aws_vpc_id'
                         sh 'terraform output -raw aws_ssl_certificate_arn'
                         sh 'terraform output -raw aws_route53_zone_id'
