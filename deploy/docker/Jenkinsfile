@@ -100,7 +100,21 @@ pipeline {
                 script {
                     dir('deploy/docker') {
                         terraformInit()
-                        sh 'terraform output'
+                        sh 'terraform output -raw ecr_repository_url'
+                        sh 'terraform output -raw execution_role'
+                        sh 'terraform output -raw task_role'
+                        sh 'terraform output -raw aws_ecr_image'
+                        sh 'terraform output -raw aws_ecr_image_tag'
+                        sh 'terraform output -raw aws_account_id'
+                        sh 'terraform output -raw aws_region'
+                        sh 'terraform output -raw aws_security_group'
+                        sh 'terraform output -raw aws_subnet_ids'
+                        sh 'terraform output -raw aws_vpc_id'
+                        sh 'terraform output -raw aws_ssl_certificate_arn'
+                        sh 'terraform output -raw aws_route53_zone_id'
+                        sh 'terraform output -raw aws_domain'
+                        sh 'terraform output -raw aws_subdomain'
+
                     }
                 }
             }
