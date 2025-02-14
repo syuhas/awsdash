@@ -1,5 +1,5 @@
 provider "aws" {
-    region = "us-east-1"
+    region = var.aws_region
 }
 
 variable "aws_account_id" {type = string}
@@ -76,7 +76,7 @@ resource "aws_ecs_task_definition" "task" {
                 logDriver = "awslogs"
                 options = {
                     awslogs-group = "/ecs/${var.app_name}"
-                    awslogs-region = provider.aws.region
+                    awslogs-region = var.aws.region
                     awslogs-create-group = "true"
                     awslogs-stream-prefix = "ecs"
                 }
