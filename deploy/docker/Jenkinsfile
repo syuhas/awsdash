@@ -101,7 +101,6 @@ pipeline {
                     dir('deploy/docker') {
                         terraformInit()
                         sh 'terraform plan -out=plan.tfplan'
-                        sh 'terraform output -raw ecr_repository_url'
                         sh 'terraform output -raw execution_role'
                         sh 'terraform output -raw task_role'
                         sh 'terraform output -raw aws_ecr_image'
