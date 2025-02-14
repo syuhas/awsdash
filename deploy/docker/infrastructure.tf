@@ -1,6 +1,4 @@
-provider "aws" {
-    region = var.aws_region
-}
+
 
 variable "aws_account_id" {type = string}
 variable "aws_region" {type = string}
@@ -22,6 +20,10 @@ variable "aws_ecr_image_tag" {
 variable "app_name" {type = string}
 variable "execution_role" {type = string}
 variable "task_role" {type = string}
+
+
+
+
 terraform {
     backend "s3" {}
 }
