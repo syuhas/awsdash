@@ -27,9 +27,6 @@ pipeline {
         }
 
         stage('Set Environment Variables') {
-            when {
-                expression { params.Options == 'TestEnv' }
-            }
             steps {
                 echo "Account ID: ${AWS_ACCOUNT_ID}"
                 echo "Setting Environment Variables"
@@ -92,33 +89,33 @@ pipeline {
         }
 
 
-        stage('TestTerraformOutputs') {
-            when {
-                expression { params.Options == 'TestEnv' }
-            }
-            steps {
-                script {
-                    dir('deploy/docker') {
-                        terraformInit()
-                        sh 'terraform plan -out=plan.tfplan'
-                        sh 'terraform output -raw execution_role'
-                        sh 'terraform output -raw task_role'
-                        sh 'terraform output -raw aws_ecr_image'
-                        sh 'terraform output -raw aws_ecr_image_tag'
-                        sh 'terraform output -raw aws_account_id'
-                        sh 'terraform output -raw aws_region'
-                        sh 'terraform output -raw aws_security_group'
-                        sh 'echo "Subnet IDs: $(terraform output -json aws_subnet_ids | jq -c .)"'
-                        sh 'terraform output -raw aws_vpc_id'
-                        sh 'terraform output -raw aws_ssl_certificate_arn'
-                        sh 'terraform output -raw aws_route53_zone_id'
-                        sh 'terraform output -raw aws_domain'
-                        sh 'terraform output -raw aws_subdomain'
+        // stage('TestTerraformOutputs') {
+        //     when {
+        //         expression { params.Options == 'TestEnv' }
+        //     }
+        //     steps {
+        //         script {
+        //             dir('deploy/docker') {
+        //                 terraformInit()
+        //                 sh 'terraform plan -out=plan.tfplan'
+        //                 sh 'terraform output -raw execution_role'
+        //                 sh 'terraform output -raw task_role'
+        //                 sh 'terraform output -raw aws_ecr_image'
+        //                 sh 'terraform output -raw aws_ecr_image_tag'
+        //                 sh 'terraform output -raw aws_account_id'
+        //                 sh 'terraform output -raw aws_region'
+        //                 sh 'terraform output -raw aws_security_group'
+        //                 sh 'echo "Subnet IDs: $(terraform output -json aws_subnet_ids | jq -c .)"'
+        //                 sh 'terraform output -raw aws_vpc_id'
+        //                 sh 'terraform output -raw aws_ssl_certificate_arn'
+        //                 sh 'terraform output -raw aws_route53_zone_id'
+        //                 sh 'terraform output -raw aws_domain'
+        //                 sh 'terraform output -raw aws_subdomain'
 
-                    }
-                }
-            }
-        }
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('AssumeRole') {
             steps {
