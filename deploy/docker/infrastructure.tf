@@ -21,7 +21,9 @@ variable "app_name" {type = string}
 variable "execution_role" {type = string}
 variable "task_role" {type = string}
 
-
+provider "aws" {
+    region = var.aws_region
+}
 
 
 terraform {
