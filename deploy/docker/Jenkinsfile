@@ -212,8 +212,8 @@ pipeline {
             }
             steps {
                 script {
-                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${env.TF_VAR_aws_account_id}.dkr.ecr.${env.TF_VAR_aws_region}.amazonaws.com'
-                    sh 'docker build -t ${env.TF_VAR_app_name}:${env.TF_VAR_aws_ecr_image_tag} .'
+                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${TF_VAR_aws_account_id}.dkr.ecr.${TF_VAR_aws_region}.amazonaws.com'
+                    sh 'docker build -t ${TF_VAR_app_name}:${TF_VAR_aws_ecr_image_tag} .'
                 }
             }
         }
@@ -224,8 +224,8 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker tag ${env.TF_VAR_app_name}:${env.TF_VAR_aws_ecr_image_tag} ${ECR_REPOSITORY_URL}:${env.TF_VAR_aws_ecr_image_tag}"
-                    sh "docker push ${ECR_REPOSITORY_URL}:${env.TF_VAR_aws_ecr_image_tag}"
+                    sh "docker tag ${TF_VAR_app_name}:${TF_VAR_aws_ecr_image_tag} ${ECR_REPOSITORY_URL}:${TF_VAR_aws_ecr_image_tag}"
+                    sh "docker push ${ECR_REPOSITORY_URL}:${TF_VAR_aws_ecr_image_tag}"
                 }
             }
         }
