@@ -1,12 +1,11 @@
 region: "us-east-1"
 app_name: "s3dashboard"
 aws_accounts:
-  "551796573889":
+- "551796573889":
     security_group: "sg-00d9ca388301c93a9"
-    # subnet_ids: [ "subnet-0823df6c43b1a0ea4", "subnet-057dcb202796ed034" ]
     subnet_ids:
-    - "subnet-1"
-    - "subnet-2"
+    - "subnet-0823df6c43b1a0ea4"
+    - "subnet-057dcb202796ed034"
     vpc_id: "vpc-0fb8abe9d3c477bd0"
     tf_bucket: "terraform-lock-bucket"
     tf_table: "terraform-lock-table"
@@ -16,9 +15,11 @@ aws_accounts:
     cross_account_role: "jenkinsAdminXacnt"
     execution_role: "ecsTaskExecutionRole"
     task_role: "admin"
-  "061039789243":
+- "061039789243":
     security_group: "sg-037b895bfb55fcedd"
-    subnet_ids: [ "subnet-0779315ccd9641510", "subnet-0e8054e0ff2fef1d8" ]
+    subnet_ids:
+    - "subnet-0779315ccd9641510"
+    - "subnet-0e8054e0ff2fef1d8"
     vpc_id: "vpc-04ad271ca687b3562"
     tf_bucket: "terraform-lock-bucket-dev"
     tf_table: "terraform-lock-table"
